@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ClickUpService } from '../services/click-up.service';
+import { ClickUpService } from '../../services/click-up.service';
 
 @Component({
   selector: 'app-user-list',
+  standalone: true,
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.css']
+  styleUrls: ['./user-list.component.scss']
 })
 export class UserListComponent implements OnInit {
   users: any[] = [];

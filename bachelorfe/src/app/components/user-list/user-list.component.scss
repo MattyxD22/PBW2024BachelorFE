@@ -1,0 +1,15 @@
+.avatar {
+    width: 50px;            // Indstil bredde på avatarbilledet
+    height: 50px;           // Indstil højde på avatarbilledet
+    border-radius: 50%;     // Gør billedet rundt
+    border: 2px solid #ccc; // Tilføj en let grå kant rundt om billedet
+    margin-right: 10px;     // Giv lidt afstand til navnet
+  }
+  
+  span {
+    font-size: 1.2rem;       // Indstil tekststørrelse for brugernavnet
+    font-weight: bold;       // Gør navnet fed
+    color: #333;             // Sæt tekstfarven til en mørkegrå
+    display: flex;
+    align-items: center;     // Centerer tekst lodret i forhold til avatar
+  }
