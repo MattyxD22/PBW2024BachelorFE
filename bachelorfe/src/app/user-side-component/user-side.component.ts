@@ -7,7 +7,7 @@ import { NgClass } from '@angular/common';
   standalone: true,
   imports: [UserListComponent, NgClass],
   templateUrl: './user-side.component.html',
-  styleUrl: './user-side.component.scss'
+  styleUrls: ['./user-side.component.scss'] 
 })
 export class UserSideComponent {
 

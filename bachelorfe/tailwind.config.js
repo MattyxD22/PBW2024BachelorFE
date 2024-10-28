@@ -32,7 +32,7 @@ module.exports = {
           hover: "#f6f9fc",
           PrimaryColor: "#24C79F",
           secondaryColor: "#2D3D4F",
-          lightmodeHover: "#B6FFED",
+          lightmodeHover: "#BAF2E4",
           headerColor: "#6E6D6D",
           calenderBlock: "#2D3D4F"
         },
