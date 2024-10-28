@@ -20,6 +20,13 @@ export class UserListComponent implements OnInit {
     { "name": "George Clark" },
     { "name": "Hannah Scott" },
     { "name": "Ian Thompson" },
+    { "name": "Charlie Brown" },
+    { "name": "Dana White" },
+    { "name": "Evan Martinez" },
+    { "name": "Fiona Lee" },
+    { "name": "George Clark" },
+    { "name": "Hannah Scott" },
+    { "name": "Ian Thompson" },
     { "name": "Julia Lopez" }
 ];
 

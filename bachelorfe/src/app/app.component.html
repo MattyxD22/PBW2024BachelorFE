@@ -1,12 +1,13 @@
-<style>
-  html, body {
-    margin: 0px;
-    padding: 0px;
-  } 
-</style>
+<main class="h-full w-full flex flex-row p-2">
 
-<main class="main">
-  <p>Hej</p>
-  <app-user-list></app-user-list>
+<div class="h-full w-1/5 border-2 border-black-500">
+  <app-user-side-component></app-user-side-component>
+</div>
+<div class="h-full w-4/5 border-2 border-black-500">
+  <app-data-side></app-data-side>
+</div>
+
+
+
 </main>
 <router-outlet />

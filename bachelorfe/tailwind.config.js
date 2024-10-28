@@ -30,10 +30,15 @@ module.exports = {
           overlay: "#ffffff",
           border: "#dfe7ef",
           hover: "#f6f9fc",
+          PrimaryColor: "#24C79F",
+          secondaryColor: "#2D3D4F",
+          lightmodeHover: "#B6FFED",
+          headerColor: "#6E6D6D",
+          calenderBlock: "#2D3D4F"
         },
         text: {
-          color: "#4b5563",
-          secondary: "#6b7280",
+          primary: "#2D3D4F",
+          secondary: "#6E6D6D",
         },
         primary: {
           color: "#3B82F6",
