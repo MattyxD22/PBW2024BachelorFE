@@ -1,23 +1,37 @@
 import { Component, OnInit } from '@angular/core';
-import { ClickUpService } from '../../services/click-up.service';
+import { CommonModule } from '@angular/common';
+import { BackendService } from '../../services/click-up.service';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.scss']
+  styleUrls: ['./user-list.component.scss'],
+  imports: [CommonModule]
 })
 export class UserListComponent implements OnInit {
-  users: any[] = [];
+  users: any[] = [
+    { "name": "Alice Johnson" },
+    { "name": "Bob Smith" },
+    { "name": "Charlie Brown" },
+    { "name": "Dana White" },
+    { "name": "Evan Martinez" },
+    { "name": "Fiona Lee" },
+    { "name": "George Clark" },
+    { "name": "Hannah Scott" },
+    { "name": "Ian Thompson" },
+    { "name": "Julia Lopez" }
+];
 
-  constructor(private clickUpService: ClickUpService) {}
+  constructor(private backendService: BackendService) {}
 
   ngOnInit(): void {
-    this.clickUpService.getUsers().subscribe((response: any) => {
+      /* this.backendService.getUsers().subscribe((response: any) => {
       this.users = response.users.map((user: any) => ({
         name: user.username,
         avatar: user.profilePicture
       }));
-    });
+    });  */
   }
 }
+
