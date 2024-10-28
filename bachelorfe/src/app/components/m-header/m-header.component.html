@@ -1,0 +1,23 @@
+<div class="p-4 border-2 border-green-500 flex flex-row">
+    <div class="flex flex-row w-full  relative">
+        <div class="user-item flex flex-row p-6 hover:bg-surface-lightmodeHover">
+            <p-button pRipple pButton label="mc" class="w-[65px] h-[65px] rounded-full border-2 border-black-500 mr-6" (onClick)="toggleMenuLeft()" />
+            <span class="text-2xl font-semibold text-black content-center">Mathias Christensen</span>
+        </div>
+
+          <div class="mx-auto flex justify-center content-center">
+            <p-button class="my-auto p-primary" pRipple pButton icon="pi pi-bars" (onClick)="toggleMenuRight()" />
+          </div>
+    </div>
+
+    <ng-container *ngIf="showLeftMenu">
+        <div (click)="closeMenu()" class="absolute border-r-2 border-black-500 w-[75%] bg-gray-500 left-0 top-0 h-full z10">
+            <app-user-side-component></app-user-side-component>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="showRightMenu">
+        <div (click)="closeMenu()" class="absolute border-r-2 border-black-500 w-[75%] bg-gray-500 -right-2 top-0 h-full z10"></div>
+    </ng-container>
+    
+
+</div>
