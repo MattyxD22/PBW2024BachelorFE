@@ -1,4 +1,4 @@
-<div *ngFor="let user of users" class="user-item flex flex-row p-6 hover:bg-surface-lightmodeHover">
+<div *ngFor="let user of users" class="user-item flex flex-row p-4 hover:bg-surface-lightmodeHover">
   <img [src]="user.avatar" alt="{{ user.name }}'s avatar" class="w-[65px] h-[65px] rounded-full border-2 border-black-500 mr-6" />
   <span class="text-2xl font-semibold text-black content-center">{{ user.name }}</span>
 </div>
