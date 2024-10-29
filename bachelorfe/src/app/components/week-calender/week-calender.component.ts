@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { startOfWeek, subWeeks, addWeeks } from 'date-fns';
 import { Subject } from 'rxjs';
 import { CalendarEvent } from 'calendar-utils';
-import { AddDaysPipe } from '../pipes/add-days.pipe';
+import { AddDaysPipe } from '../../pipes/add-days.pipe';
 
 @Component({
   selector: 'app-week-calendar',
