@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { UserListComponent } from '../components/user-list/user-list.component';
 import { NgClass } from '@angular/common';
+import { UserListComponent } from '../user-list/user-list.component';
 
 @Component({
   selector: 'app-user-side-component',
