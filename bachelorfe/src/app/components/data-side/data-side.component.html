@@ -1,15 +1,15 @@
 <div class="h-full w-full flex flex-col" >
 
     <ng-container *ngIf="shouldRender">
-        <div class="w-full h-[100px] flex flex-row">
+        <div class="w-full h-1/8 flex flex-row">
             <div class="w-1/2 border-2 border-green-500 text-2xl font-semibold text-black content-center text-center">Arbejdstimer</div>
             <div class="w-1/2 border-2 border-green-500 text-2xl font-semibold text-black content-center text-center">Fridage</div>
         </div>
     </ng-container>
 
 
-    <div class="flex flex-grow w-full border-2 border-blue-500">
-
+    <div class="flex flex-grow h-7/8 border-2 border-blue-500 content-center justify-center">
+        <app-full-calendar [ngClass]="['w-full', 'px-24']"></app-full-calendar>
     </div>
 
 </div>

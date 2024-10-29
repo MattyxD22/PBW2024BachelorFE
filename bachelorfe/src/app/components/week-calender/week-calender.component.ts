@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { startOfWeek, subWeeks, addWeeks } from 'date-fns';
 import { Subject } from 'rxjs';
 import { CalendarEvent } from 'calendar-utils';
-import { AddDaysPipe } from '../../pipes/add-days.pipe';
+
 
 @Component({
   selector: 'app-week-calendar',
   standalone: true,
-  imports: [CommonModule, AddDaysPipe], 
+  imports: [CommonModule], 
   templateUrl: './week-calender.component.html',
   styleUrls: ['./week-calender.component.scss']
 })
