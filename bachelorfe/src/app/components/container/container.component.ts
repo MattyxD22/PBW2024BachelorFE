@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnInit } from '@angular/core';
-import { DeviceTypeStore } from '../../stores/deviceTypes.store';
 import { UserSideComponent } from '../user-side-component/user-side.component';
 import { DataSideComponent } from '../data-side/data-side.component';
 import { CommonModule } from '@angular/common';
 import { MHeaderComponent } from "../m-header/m-header.component";
 import { AddDaysPipe } from '../../pipes/add-days.pipe';
-import { WeekCalenderComponent } from '../../week-calender/week-calender.component';
+import { WeekCalenderComponent } from '../week-calender/week-calender.component';
+import { DeviceTypeStore } from '../../stores/deviceTypes.store';
 
 @Component({
   selector: 'app-container',
   standalone: true,
-  imports: [UserSideComponent, DataSideComponent, CommonModule, MHeaderComponent, AddDaysPipe,  WeekCalenderComponent],
+  imports: [UserSideComponent, DataSideComponent, CommonModule, MHeaderComponent, AddDaysPipe, WeekCalenderComponent],
   templateUrl: './container.component.html',
   styleUrls: ['./container.component.scss'], // Fixed typo from styleUrl to styleUrls
   changeDetection: ChangeDetectionStrategy.OnPush, // Optional: Set ChangeDetection strategy if desired
