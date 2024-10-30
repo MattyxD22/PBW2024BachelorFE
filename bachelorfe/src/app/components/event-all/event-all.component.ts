@@ -4,6 +4,13 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class EventService {
+  private addColorToFridageEvents(events: any[]) {
+    return events.map(event => ({
+      ...event,
+      color: 'red' // Sætter farven til rød for hver fridag event
+    }));
+  }
+
   getArbejdstimerEvents() {
     return [
       { title: 'Arbejde', start: '2024-10-28T08:00:00', end: '2024-10-28T16:00:00' },
@@ -14,11 +21,11 @@ export class EventService {
   }
 
   getFridageEvents() {
-    return [
-      { title: 'Syg', start: '2024-10-31T08:00:00', end:'2024-10-31T16:00:00' },
-      { title: 'Syg', start: '2024-11-01T08:00:00', end:'2024-11-01T15:30:00' },
-
+    const fridageEvents = [
+      { title: 'Fridag Event 1', start: '2024-10-31T08:00:00', end: '2024-10-31T16:00:00' },
+      { title: 'Fridag Event 2', start: '2024-11-01T08:00:00', end: '2024-11-01T16:00:00' },
       // flere fridage events
     ];
+    return this.addColorToFridageEvents(fridageEvents);
   }
 }

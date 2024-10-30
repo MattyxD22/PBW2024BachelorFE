@@ -7,18 +7,21 @@ import { FullCalendarComponent } from '../full-calendar/full-calendar.component'
   standalone: true,
   imports: [CommonModule, FullCalendarComponent],
   templateUrl: './data-side.component.html',
-  styleUrl: './data-side.component.scss'
+  styleUrls: ['./data-side.component.scss'] // Korrekt navn (styleUrls)
 })
 export class DataSideComponent {
   @ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
+  @Input() shouldRender: boolean = true;
+
+  activeTab: 'arbejdstimer' | 'fridage' = 'arbejdstimer'; // Default til arbejdstimer
 
   visArbejdstimer() {
-    this.fullCalendarComponent.visArbejdstimer();
+    this.activeTab = 'arbejdstimer'; // Opdater aktiv tilstand
+    this.fullCalendarComponent.visArbejdstimer(); // Kald metoden fra FullCalendarComponent
   }
 
   visFridage() {
-    this.fullCalendarComponent.visFridage();
+    this.activeTab = 'fridage'; // Opdater aktiv tilstand
+    this.fullCalendarComponent.visFridage(); // Kald metoden fra FullCalendarComponent
   }
-  @Input() shouldRender: boolean = true;
-
 }
