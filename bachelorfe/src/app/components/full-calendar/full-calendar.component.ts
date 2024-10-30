@@ -35,6 +35,7 @@ export class FullCalendarComponent {
     dayMaxEvents: true,
     expandRows: true,
     firstDay: 1, 
+    eventBackgroundColor: 'PrimaryColor',
     views: {
       dayGridMonth: {
         titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' }, 
