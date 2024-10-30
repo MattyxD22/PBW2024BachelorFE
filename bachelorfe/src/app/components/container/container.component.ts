@@ -25,26 +25,23 @@ export class ContainerComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResize(event?: Event) { 
     const width = event ? (event.target as Window).innerWidth : this.fallBackDeviceType(); // Default width
-    console.log(width, this.deviceTypeStore.getDevice()); // Log width and device type
-    this.deviceTypeStore.updateDeviceType(width); // Update device type
-    console.log(this.deviceTypeStore.isDesktop())
+    this.deviceTypeStore.updateDeviceType(width);
   }
 
   fallBackDeviceType(): number {
-    // Check if running in a browser environment
     if (typeof navigator !== 'undefined') {
-      const userAgent = navigator.userAgent.toLowerCase(); // Access navigator only if it exists
+      const userAgent = navigator.userAgent.toLowerCase();
 
       if (userAgent.includes('android') || userAgent.includes('iphone')) {
-        return 640; // Mobile fallback width
+        return 640; 
       } else if (userAgent.includes('ipad')) {
-        return 768; // iPad fallback width
-      } else { // Return desktop value instead
+        return 768; 
+      } else { 
         return 1280; // Desktop fallback width
       } 
     } else {
-      // Fallback width for server-side rendering or other environments without navigator
-      return 1280; // Default to desktop width
+     
+      return 1280;
     }
   }
 
