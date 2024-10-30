@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { FullCalendarComponent } from '../full-calendar/full-calendar.component';
 
 @Component({
@@ -10,7 +10,15 @@ import { FullCalendarComponent } from '../full-calendar/full-calendar.component'
   styleUrl: './data-side.component.scss'
 })
 export class DataSideComponent {
+  @ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
 
+  visArbejdstimer() {
+    this.fullCalendarComponent.visArbejdstimer();
+  }
+
+  visFridage() {
+    this.fullCalendarComponent.visFridage();
+  }
   @Input() shouldRender: boolean = true;
 
 }
