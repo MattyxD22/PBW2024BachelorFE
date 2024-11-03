@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 import { TeamupStore } from '../../stores/teamup.store';
 import { signal } from '@angular/core';
+import { ClickupStore } from '../../stores/clickup.store';
 
 @Component({
   selector: 'app-user-list',
@@ -14,7 +15,8 @@ import { signal } from '@angular/core';
 })
 export class UserListComponent implements OnInit {
 
-  private teamupStore = inject(TeamupStore);
+  protected readonly teamupStore = inject(TeamupStore);
+  protected readonly clickupStore = inject(ClickupStore)
 
   // Create a signal to hold users
   users = this.teamupStore.getUsers()
@@ -26,7 +28,7 @@ export class UserListComponent implements OnInit {
   getUserCalendar(email: string) {
     console.log(email);
     this.teamupStore.setUserEvents(email);
-    console.log(this.teamupStore.getUserCalendar());
+    this.clickupStore.setTasks(email)
     
   }
 

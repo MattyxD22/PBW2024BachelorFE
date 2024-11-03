@@ -43,8 +43,7 @@ export class TeamupService {
   teamupFetchUserCalendar(email: string){
     const headers = {
       Authorization: `Bearer ${this.authenticationToken}`,
-    };
-  
+    };  
     return this.http.get<any[]>(`http://localhost:3000/api/teamup/userEvents/${email}`, { headers });
   }
   teamupFetchCalendar(){
@@ -54,5 +53,14 @@ export class TeamupService {
   
     return this.http.get<any[]>(`http://localhost:3000/api/teamup/events`, { headers });
   }
+  teamupFetchSubCalendar(){
+    const headers = {
+      Authorization: `Bearer ${this.authenticationToken}`,
+    };
+  
+    return this.http.get<any[]>(`http://localhost:3000/api/teamup/subcalendars`, { headers });
+  }
+
+
 
 }

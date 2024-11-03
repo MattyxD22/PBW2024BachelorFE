@@ -4,7 +4,8 @@ import { RouterOutlet } from '@angular/router';
 import { ContainerComponent } from './components/container/container.component';
 import { TeamupService } from './services/teamupServices/teamup.service';
 import { TeamupStore } from './stores/teamup.store';
-
+import { ClickupStore } from './stores/clickup.store';
+ 
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -15,7 +16,8 @@ import { TeamupStore } from './stores/teamup.store';
 export class AppComponent implements OnInit {
   title = 'bachelorfe';
 
-  teamupStore = inject(TeamupStore)
+  protected readonly teamupStore = inject(TeamupStore)
+  protected readonly clickupStore = inject(ClickupStore)
 
   constructor(private teamupService: TeamupService) {
 
@@ -25,7 +27,9 @@ export class AppComponent implements OnInit {
     this.teamupService.teamupAuthenticate().subscribe({
       next: () => {
         this.teamupStore.setUsers(); // Call setUsers after successful authentication
-        //this.teamupStore.setCalender();
+        this.teamupStore.setSubCalender();
+        this.clickupStore.setMembers();
+        
       },
       error: (error) => {
         console.error('Authentication failed:', error);

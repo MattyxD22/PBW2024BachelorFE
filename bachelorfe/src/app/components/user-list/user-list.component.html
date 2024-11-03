@@ -1,4 +1,4 @@
-<div (click)="getUserCalendar(user.members[0].email)" *ngFor="let user of users" class="user-item flex flex-row py-4 hover:cursor-pointer hover:bg-surface-lightmodeHover">
+<div (click)="getUserCalendar(user.members[0].email)" *ngFor="let user of teamupStore.getUsers()" class="user-item flex flex-row py-4 hover:cursor-pointer hover:bg-surface-lightmodeHover">
   <app-user-avatar [userName]="user.name"></app-user-avatar>
   <span class="text-2xl font-semibold text-black content-center">{{ user.name }}</span>
 </div>

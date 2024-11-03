@@ -1,10 +1,11 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TeamupStore } from '../../stores/teamup.store';
+import { ClickupStore } from '../../stores/clickup.store';
 
 @Component({
   selector: 'app-full-calendar',
@@ -13,12 +14,14 @@ import { TeamupStore } from '../../stores/teamup.store';
   templateUrl: './full-calendar.component.html',
   styleUrls: ['./full-calendar.component.scss']
 })
-export class FullCalendarComponent implements OnInit {
+export class FullCalendarComponent {
   calendarVisible = signal(true);
   teamupStore = inject(TeamupStore);
-  
-  // Compute events from the store
-  events = this.teamupStore.getUserCalendar()
+  clickupStore = inject(ClickupStore)
+
+  // Get events from the store
+  readonly events = this.teamupStore.getUserCalendar;
+  readonly subCalenders = this.teamupStore.getSubcalendars();
 
   // FullCalendar options
   calendarOptions = signal<CalendarOptions>({
@@ -52,108 +55,89 @@ export class FullCalendarComponent implements OnInit {
         slotDuration: '00:30:00',
       }
     },
-    events: [] // Initialize with an empty array
+    events: [], // Initialize with an empty array
+    eventContent: (arg) => {
+      const { event } = arg;
+      const { extendedProps } = event;
+  
+      // Example: Display task details if available
+      const title = event.title || 'Event';
+      const taskDetails = extendedProps['taskDetails'];
+      
+      // You can customize the display as needed
+      return {
+        html: `
+          <div class="border-b">
+            <strong>${title}</strong>
+            ${taskDetails ? `<div>${taskDetails.title}</div>` : ''}
+            ${taskDetails ? `<div>${taskDetails.duration.hours}h ${taskDetails.duration.minutes}m</div>` : ''}
+          </div>
+        `
+      };
+    }
   });
 
   get options() {
     return this.calendarOptions();
   }
 
-  ngOnInit() {
-    // Watch for changes in events and update the calendar accordingly
-    this.events.subscribe(() => {
-      console.log('plz');
-      
-      this.updateCalendarEvents();
-    });
-  }
+  // Use `effect` to update calendar events when `events` changes
+  private eventsEffect = effect(() => {
+    const currentEvents = this.events();
+    this.updateCalendarEvents(currentEvents);
+  }, { allowSignalWrites: true });
 
   // Method to update calendar events
-  private updateCalendarEvents() {
-    const currentEvents = this.events();
-    this.calendarOptions.set({ events: this.transformEvents(currentEvents) });
+  private updateCalendarEvents(events: any[]) {
+    this.calendarOptions.set({ events: this.transformEvents(events) });
   }
 
   // Method to transform the event data
   private transformEvents(events: any[]): any[] {
     const transformedEvents: any[] = [];
-    
+
+    const allowedCalendarIds = this.teamupStore.subcalendars()
+      .filter((item: any) => item.name === 'Office' || item.name === 'Remote')
+      .map((calendar: any) => calendar.id); // Extract only the ids
+
+    const clickupTasks = this.clickupStore.tasks();
+
     events.forEach(event => {
-      if (event.rrule) {
-        const instances = this.generateRecurringEvents(event);
-        transformedEvents.push(...instances);
-      } else {
+      if (allowedCalendarIds.includes(event.subcalendar_id)) {
+        const eventStartDate = new Date(event.start_dt).toDateString(); // Gets a string like "Fri Nov 01 2024"
+
+        // Find the corresponding task based on the logged date
+        const correspondingTask = clickupTasks.find((task: any) => {
+          // Convert the dateLogged from string to a number and then to a Date object
+          const taskDate = new Date(parseInt(task.dateLogged)); // Ensure we're converting to a number
+          const taskStartDate = taskDate.toDateString(); // Convert to date string for comparison
+    
+          // Return true if the dates match
+          return taskStartDate === eventStartDate;
+        });
+
         transformedEvents.push({
           id: event.id,
-          title: event.title,
+          title: ' ', // maybe show type of calendar?=
           start: event.start_dt,
           end: event.end_dt,
           allDay: event.all_day || false,
           extendedProps: {
-            email: event.custom?.email || ''
+            email: event.custom?.email || '',
+            taskDetails: correspondingTask ? {
+              title: correspondingTask.taskTitle,
+              dateLogged: correspondingTask.dateLogged,
+              loggedBy: correspondingTask.loggedBy,
+              duration: correspondingTask.duration // or any other property you want to include
+            } : null // Set to null if no corresponding task is found
           }
         });
       }
     });
-    
+
+    console.log(transformedEvents);
+
+
     return transformedEvents;
-  }
-
-  // Method to parse RRule into days of the week and end date
-  private parseRRule(rrule: string): { days: number[], until: Date | null } {
-    const parts = rrule.split(';');
-    const days: number[] = [];
-    let until: Date | null = null;
-
-    const dayMapping: { [key: string]: number } = {
-      MO: 1, // Monday
-      TU: 2, // Tuesday
-      WE: 3, // Wednesday
-      TH: 4, // Thursday
-      FR: 5, // Friday
-      SA: 6, // Saturday
-      SU: 0  // Sunday
-    };
-
-    for (const part of parts) {
-      const [key, value] = part.split('=');
-      if (key === 'BYDAY') {
-        value.split(',').forEach(day => {
-          if (dayMapping[day]) {
-            days.push(dayMapping[day]);
-          }
-        });
-      } else if (key === 'UNTIL') {
-        until = new Date(value);
-      }
-    }
-
-    return { days, until };
-  }
-
-  // Method to generate recurring events based on the parsed RRule
-  private generateRecurringEvents(event: any): any[] {
-    const rrule = event.rrule;
-    const startDate = new Date(event.start_dt);
-    const endDate = new Date(event.end_dt);
-    const { days, until } = this.parseRRule(rrule);
-
-    const generatedEvents: any[] = [];
-    let currentDate = new Date(startDate);
-
-    while (!until || currentDate <= until) {
-      // Check if the current date is one of the specified days
-      if (days.includes(currentDate.getDay())) {
-        // Create a copy of the event with updated start and end times
-        const newEvent = { ...event };
-        newEvent.start_dt = currentDate.toISOString();
-        newEvent.end_dt = new Date(currentDate.getTime() + (endDate.getTime() - startDate.getTime())).toISOString();
-        generatedEvents.push(newEvent);
-      }
-      // Move to the next day
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return generatedEvents;
   }
 }

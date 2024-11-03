@@ -1,13 +1,11 @@
 import { signalStore, withComputed, withState, withMethods, patchState } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
 import { TeamupService } from '../services/teamupServices/teamup.service';
-import { catchError, from, of, switchMap } from 'rxjs';
-import { error } from 'console';
 
 type teamupState = {
-  users: any,
-  subcalendars: any,
-  userCalendar: any
+  users: any[],
+  subcalendars: any[],
+  userCalendar: any[]
 };
 
 const initialState: teamupState = {
@@ -36,8 +34,6 @@ export const TeamupStore = signalStore(
 
           teamupService.teamupFetchUsers().subscribe({
             next: (res: any) => {
-              console.log(res.users);
-
               patchState(store, { users: res.users });
             },
             error: (error) => {
@@ -51,7 +47,6 @@ export const TeamupStore = signalStore(
       setUserEvents: (email: string) => {
         teamupService.teamupFetchUserCalendar(email).subscribe({
           next: (res: any) => {
-            console.log(res.events);
             patchState(store, { userCalendar: res.events });
           },
           error: (error) => {
@@ -69,7 +64,18 @@ export const TeamupStore = signalStore(
             console.log('Error fetching user calendar');
           }
         })
-      }
+      },
+      
+      setSubCalender: () => {
+        teamupService.teamupFetchSubCalendar().subscribe({
+          next: (res: any) => {
+            patchState(store, { subcalendars: res.subcalendars })
+          },
+          error: (error) => {
+            console.log('Error fetching user calendar');
+          }
+        })
+      },
     }
   }),
 );
