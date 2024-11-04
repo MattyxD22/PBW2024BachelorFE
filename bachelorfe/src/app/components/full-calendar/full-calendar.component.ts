@@ -66,10 +66,8 @@ export class FullCalendarComponent {
     views: {
       dayGridMonth: {
         titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
-        titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
       },
       timeGridWeek: {
-        slotMinTime: '05:00:00',
         slotMinTime: '05:00:00',
         slotMaxTime: '21:00:00',
         slotDuration: '00:30:00',
@@ -96,27 +94,6 @@ export class FullCalendarComponent {
       };
     }
   });
-
-
-  private updateCalendarOptions() {
-    this.calendarOptions.set({
-      ...this.calendarOptions(),
-      events: this.currentEvents(), 
-    });
-  }
-
-  visArbejdstimer() {
-    this.currentEvents.set(this.eventService.getArbejdstimerEvents());
-    this.updateCalendarOptions(); 
-    console.log('Arbejdstimer events:', this.currentEvents());
-  }
-
-  visFridage() {
-    this.currentEvents.set(this.eventService.getFridageEvents());
-    this.updateCalendarOptions();
-    console.log('Fridage events:', this.currentEvents());
-  }
-
 
   private updateCalendarOptions() {
     this.calendarOptions.set({
