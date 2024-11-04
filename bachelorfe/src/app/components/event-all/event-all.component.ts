@@ -7,24 +7,22 @@ export class EventService {
   private addColorToFridageEvents(events: any[]) {
     return events.map(event => ({
       ...event,
-      color: 'red' // Sætter farven til rød for hver fridag event
+      color: 'red'
     }));
   }
 
   getArbejdstimerEvents() {
     return [
-      { title: 'Arbejde', start: '2024-10-28T08:00:00', end: '2024-10-28T16:00:00' },
-      { title: 'Arbejde', start: '2024-10-29T08:00:00', end: '2024-10-29T16:00:00' },
-      { title: 'Arbejde', start: '2024-10-30T08:00:00', end: '2024-10-30T16:00:00' },
-      // flere arbejdstimer events
+      { title: 'Arbejde', start: '2024-11-04T08:00:00', end: '2024-11-04T16:00:00' },
+      { title: 'Arbejde', start: '2024-11-05T08:00:00', end: '2024-11-05T16:00:00' },
+      { title: 'Arbejde', start: '2024-11-06T08:00:00', end: '2024-11-06T16:00:00' },
     ];
   }
 
   getFridageEvents() {
     const fridageEvents = [
-      { title: 'Fridag Event 1', start: '2024-10-31T08:00:00', end: '2024-10-31T16:00:00' },
-      { title: 'Fridag Event 2', start: '2024-11-01T08:00:00', end: '2024-11-01T16:00:00' },
-      // flere fridage events
+      { title: 'Fridag Event 1', start: '2024-11-07T08:00:00', end: '2024-11-07T16:00:00' },
+      { title: 'Fridag Event 2', start: '2024-11-08T08:00:00', end: '2024-11-08T16:00:00' },
     ];
     return this.addColorToFridageEvents(fridageEvents);
   }

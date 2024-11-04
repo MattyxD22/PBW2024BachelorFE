@@ -22,10 +22,9 @@ interface CalendarEvent {
 
 export class FullCalendarComponent {
   calendarVisible = signal(true);
-  currentEvents = signal<CalendarEvent[]>([]); // Hold events
+  currentEvents = signal<CalendarEvent[]>([]);
 
   constructor(private eventService: EventService) {
-    // Directly bind events in the calendarOptions
     this.visArbejdstimer();
   }
 
@@ -65,26 +64,26 @@ export class FullCalendarComponent {
         slotDuration: '00:30:00',
       },
     },
-    events: [] // Start with an empty events array
+    events: [] 
   });
 
-  // Update the calendar options with the current events
+
   private updateCalendarOptions() {
     this.calendarOptions.set({
       ...this.calendarOptions(),
-      events: this.currentEvents(), // Bind events dynamically
+      events: this.currentEvents(), 
     });
   }
 
   visArbejdstimer() {
     this.currentEvents.set(this.eventService.getArbejdstimerEvents());
-    this.updateCalendarOptions(); // Update options after changing events
+    this.updateCalendarOptions(); 
     console.log('Arbejdstimer events:', this.currentEvents());
   }
 
   visFridage() {
     this.currentEvents.set(this.eventService.getFridageEvents());
-    this.updateCalendarOptions(); // Update options after changing events
+    this.updateCalendarOptions();
     console.log('Fridage events:', this.currentEvents());
   }
 

@@ -13,11 +13,8 @@ import { UserSideComponent } from "../user-side-component/user-side.component";
 })
 export class MHeaderComponent {
 
-
   showLeftMenu = false;
   showRightMenu = false;
-
-
 
   toggleMenuLeft() {
     this.showRightMenu = false
