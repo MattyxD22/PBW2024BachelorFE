@@ -4,7 +4,6 @@ import { CalendarOptions } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { EventService } from '../event-all/event-all.component';
 import { TeamupStore } from '../../stores/teamup.store';
 import { ClickupStore } from '../../stores/clickup.store';
 interface CalendarEvent {
@@ -90,30 +89,14 @@ export class FullCalendarComponent {
     },
   });
 
-  private updateCalendarOptions() {
-    this.calendarOptions.set({
-      ...this.calendarOptions(),
-      events: this.currentEvents(),
-    });
-  }
-
   visArbejdstimer() {
     const currentEvents = this.events();
     this.updateCalendarEvents(currentEvents, false);
-    // this.currentEvents.set(this.eventService.getArbejdstimerEvents());
-    // this.updateCalendarOptions();
-    // console.log('Arbejdstimer events:', this.currentEvents());
   }
 
   visFridage() {
-
-
     const currentEvents = this.events();
     this.updateCalendarEvents(currentEvents, true);
-
-    // this.currentEvents.set(this.eventService.getFridageEvents());
-    // this.updateCalendarOptions();
-    // console.log('Fridage events:', this.currentEvents());
   }
 
   get options() {

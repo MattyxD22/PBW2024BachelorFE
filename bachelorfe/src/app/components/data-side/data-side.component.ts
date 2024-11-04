@@ -21,7 +21,7 @@ export class DataSideComponent {
   }
 
   visFridage() {
-    this.activeTab = 'fridage'; // Opdater aktiv tilstand
-    this.fullCalendarComponent.visFridage(); // Kald metoden fra FullCalendarComponent
+    this.activeTab = 'fridage'; 
+    this.fullCalendarComponent.visFridage(); 
   }
 }
