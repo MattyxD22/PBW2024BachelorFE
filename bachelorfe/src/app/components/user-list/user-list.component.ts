@@ -1,44 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BackendService } from '../../services/click-up.service';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
+import { TeamupStore } from '../../stores/teamup.store';
+import { signal } from '@angular/core';
+import { ClickupStore } from '../../stores/clickup.store';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.scss'],
-  imports: [CommonModule]
+  imports: [CommonModule, UserAvatarComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserListComponent implements OnInit {
-  users: any[] = [
-    { "name": "Alice Johnson" },
-    { "name": "Bob Smith" },
-    { "name": "Charlie Brown" },
-    { "name": "Dana White" },
-    { "name": "Evan Martinez" },
-    { "name": "Fiona Lee" },
-    { "name": "George Clark" },
-    { "name": "Hannah Scott" },
-    { "name": "Ian Thompson" },
-    { "name": "Charlie Brown" },
-    { "name": "Dana White" },
-    { "name": "Evan Martinez" },
-    { "name": "Fiona Lee" },
-    { "name": "George Clark" },
-    { "name": "Hannah Scott" },
-    { "name": "Ian Thompson" },
-    { "name": "Julia Lopez" }
-];
 
-  constructor(private backendService: BackendService) {}
+  protected readonly teamupStore = inject(TeamupStore);
+  protected readonly clickupStore = inject(ClickupStore)
 
+  // Create a signal to hold users
+  users = this.teamupStore.getUsers()
   ngOnInit(): void {
-      /* this.backendService.getUsers().subscribe((response: any) => {
-      this.users = response.users.map((user: any) => ({
-        name: user.username,
-        avatar: user.profilePicture
-      }));
-    });  */
+    console.log(1, this.users);
+    
   }
-}
 
+  getUserCalendar(email: string) {
+    console.log(email);
+    this.teamupStore.setUserEvents(email);
+    this.clickupStore.setTasks(email)
+    
+  }
+
+}
