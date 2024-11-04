@@ -6,11 +6,13 @@ import { ClickupService } from '../services/clickupServices/clickup.service';
 type clickupState = {
     members: any,
     tasks: any,
+    activeMember: any
 };
 
 const initialState: clickupState = {
     members: [],
     tasks: [],
+    activeMember: []
 };
 
 export const ClickupStore = signalStore(
@@ -21,6 +23,7 @@ export const ClickupStore = signalStore(
     withComputed((state) => ({
         getMembers: computed(() => state.members()),
         getTasks: computed(() => state.tasks()),
+        getActiveMember: computed(() => state.activeMember()),
     })),
 
     withMethods((store) => {
@@ -30,8 +33,6 @@ export const ClickupStore = signalStore(
             setMembers: () => {
                 clickupService.clickupFetchMembers().subscribe({
                     next: (res: any) => {
-                        console.log('members: ', res.members);
-
                         patchState(store, { members: res.members });
                     },
                     error: (error) => {
@@ -41,9 +42,7 @@ export const ClickupStore = signalStore(
             },
             setTasks: (email: string) => {
                 clickupService.clickupFetchTasks(email).subscribe({
-                    next: (res: any) => {
-                        console.log(res);
-                        
+                    next: (res: any) => {                        
                         patchState(store, { tasks: res });
                     },
                     error: (error) => {
@@ -51,6 +50,9 @@ export const ClickupStore = signalStore(
                     }
                 })
             },
+            setActiveMember: (member:any) => {
+                patchState(store, {activeMember: member})
+            }
         }
     }),
 );

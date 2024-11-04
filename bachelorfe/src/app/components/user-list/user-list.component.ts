@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 import { TeamupStore } from '../../stores/teamup.store';
-import { signal } from '@angular/core';
 import { ClickupStore } from '../../stores/clickup.store';
 import { GlobalStore } from '../../stores/global.store';
 
@@ -14,7 +13,7 @@ import { GlobalStore } from '../../stores/global.store';
   imports: [CommonModule, UserAvatarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent {
 
   protected readonly teamupStore = inject(TeamupStore);
   protected readonly clickupStore = inject(ClickupStore);
@@ -22,15 +21,16 @@ export class UserListComponent implements OnInit {
 
   // Create a signal to hold users
   users = this.teamupStore.getUsers()
-  ngOnInit(): void {
-    console.log(1, this.users);
-    
-  }
 
   getUserCalendar(email: string) {
+    // fetch data from stores to display events for the specific user
     this.teamupStore.setUserEvents(email);
     this.clickupStore.setTasks(email)
-    this.globalStore.setShowNonWorkingDays(false)
+    this.globalStore.setShowNonWorkingDays(false) // defaults to "Arbejdstimer"
+
+    // store selected user, to be able to use when scrolling through weeks
+    this.clickupStore.setActiveMember(this.clickupStore.members().filter((member: any)=> member.email === email))   
+
   }
 
 }
