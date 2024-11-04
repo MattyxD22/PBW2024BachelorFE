@@ -29,7 +29,6 @@ export class AppComponent implements OnInit {
         this.teamupStore.setUsers(); // Call setUsers after successful authentication
         this.teamupStore.setSubCalender();
         this.clickupStore.setMembers();
-        
       },
       error: (error) => {
         console.error('Authentication failed:', error);

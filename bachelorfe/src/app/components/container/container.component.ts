@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnInit } from '@angular/core';
 import { UserSideComponent } from '../user-side-component/user-side.component';
-import { DataSideComponent } from '../data-side/data-side.component';
 import { CommonModule } from '@angular/common';
 import { MHeaderComponent } from "../m-header/m-header.component";
 import { DeviceTypeStore } from '../../stores/deviceTypes.store';
+import { DataSideComponent } from '../data-side/data-side.component';
 
 @Component({
   selector: 'app-container',
   standalone: true,
-  imports: [UserSideComponent, DataSideComponent, CommonModule, MHeaderComponent],
+  imports: [UserSideComponent, CommonModule, MHeaderComponent, DataSideComponent],
   templateUrl: './container.component.html',
   styleUrls: ['./container.component.scss'], // Fixed typo from styleUrl to styleUrls
   changeDetection: ChangeDetectionStrategy.OnPush, // Optional: Set ChangeDetection strategy if desired

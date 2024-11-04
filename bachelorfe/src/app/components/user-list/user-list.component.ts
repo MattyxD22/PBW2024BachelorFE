@@ -4,6 +4,7 @@ import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 import { TeamupStore } from '../../stores/teamup.store';
 import { signal } from '@angular/core';
 import { ClickupStore } from '../../stores/clickup.store';
+import { GlobalStore } from '../../stores/global.store';
 
 @Component({
   selector: 'app-user-list',
@@ -16,7 +17,8 @@ import { ClickupStore } from '../../stores/clickup.store';
 export class UserListComponent implements OnInit {
 
   protected readonly teamupStore = inject(TeamupStore);
-  protected readonly clickupStore = inject(ClickupStore)
+  protected readonly clickupStore = inject(ClickupStore);
+  protected readonly globalStore = inject(GlobalStore);
 
   // Create a signal to hold users
   users = this.teamupStore.getUsers()
@@ -26,10 +28,9 @@ export class UserListComponent implements OnInit {
   }
 
   getUserCalendar(email: string) {
-    console.log(email);
     this.teamupStore.setUserEvents(email);
     this.clickupStore.setTasks(email)
-    
+    this.globalStore.setShowNonWorkingDays(false)
   }
 
 }

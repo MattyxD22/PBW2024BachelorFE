@@ -7,6 +7,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import { EventService } from '../event-all/event-all.component';
 import { TeamupStore } from '../../stores/teamup.store';
 import { ClickupStore } from '../../stores/clickup.store';
+import { GlobalStore } from '../../stores/global.store';
 interface CalendarEvent {
   title: string;
   start: string;
@@ -26,10 +27,12 @@ export class FullCalendarComponent {
 
   teamupStore = inject(TeamupStore);
   clickupStore = inject(ClickupStore);
+  globalStore = inject(GlobalStore);
 
   // Get events from the store
   readonly events = this.teamupStore.getUserCalendar;
   readonly subCalenders = this.teamupStore.getSubcalendars();
+  readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
 
   // FullCalendar options
   calendarOptions = signal<CalendarOptions>({
@@ -90,30 +93,14 @@ export class FullCalendarComponent {
     },
   });
 
-  private updateCalendarOptions() {
-    this.calendarOptions.set({
-      ...this.calendarOptions(),
-      events: this.currentEvents(),
-    });
-  }
-
   visArbejdstimer() {
     const currentEvents = this.events();
     this.updateCalendarEvents(currentEvents, false);
-    // this.currentEvents.set(this.eventService.getArbejdstimerEvents());
-    // this.updateCalendarOptions();
-    // console.log('Arbejdstimer events:', this.currentEvents());
   }
 
   visFridage() {
-
-
     const currentEvents = this.events();
     this.updateCalendarEvents(currentEvents, true);
-
-    // this.currentEvents.set(this.eventService.getFridageEvents());
-    // this.updateCalendarOptions();
-    // console.log('Fridage events:', this.currentEvents());
   }
 
   get options() {
@@ -129,9 +116,20 @@ export class FullCalendarComponent {
     { allowSignalWrites: true }
   );
 
+  private nonWorkingDaysEffect = effect(
+    () => {
+      const nonWorkingDaysState = this.nonWorkingDaysState();
+      const currentEvents = this.events();
+      this.updateCalendarEvents(currentEvents, nonWorkingDaysState);
+    },
+    { allowSignalWrites: true }
+  );
+
   // Method to update calendar events
   private updateCalendarEvents(events: any[], showSickDays: boolean) {
-    this.calendarOptions.set({ events: this.transformEvents(events, showSickDays) });
+    this.calendarOptions.set({
+      events: this.transformEvents(events, showSickDays),
+    });
   }
 
   // Method to transform the event data
