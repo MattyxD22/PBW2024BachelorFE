@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild, inject } from '@angular/core';
 import { FullCalendarComponent } from '../full-calendar/full-calendar.component';
+import { GlobalStore } from '../../stores/global.store';
 
 @Component({
   selector: 'app-data-side',
@@ -10,18 +11,19 @@ import { FullCalendarComponent } from '../full-calendar/full-calendar.component'
   styleUrls: ['./data-side.component.scss'] // Korrekt navn (styleUrls)
 })
 export class DataSideComponent {
-  @ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
+  protected readonly globalStore = inject(GlobalStore)
+  //@ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
   @Input() shouldRender: boolean = true;
 
-  activeTab: 'arbejdstimer' | 'fridage' = 'arbejdstimer'; // Default til arbejdstimer
-
   visArbejdstimer() {
-    this.activeTab = 'arbejdstimer'; // Opdater aktiv tilstand
-    this.fullCalendarComponent.visArbejdstimer(); // Kald metoden fra FullCalendarComponent
+    this.globalStore.setShowNonWorkingDays(false)
+    //this.activeTab = 'arbejdstimer'; // Opdater aktiv tilstand
+    //this.fullCalendarComponent.visArbejdstimer(); // Kald metoden fra FullCalendarComponent
   }
 
   visFridage() {
-    this.activeTab = 'fridage'; 
-    this.fullCalendarComponent.visFridage(); 
+    this.globalStore.setShowNonWorkingDays(true)
+    //this.activeTab = 'fridage'; // Opdater aktiv tilstand
+    //this.fullCalendarComponent.visFridage(); // Kald metoden fra FullCalendarComponent
   }
 }

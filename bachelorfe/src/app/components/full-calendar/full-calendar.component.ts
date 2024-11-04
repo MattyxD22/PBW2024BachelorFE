@@ -6,6 +6,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TeamupStore } from '../../stores/teamup.store';
 import { ClickupStore } from '../../stores/clickup.store';
+import { GlobalStore } from '../../stores/global.store';
 interface CalendarEvent {
   title: string;
   start: string;
@@ -25,10 +26,12 @@ export class FullCalendarComponent {
 
   teamupStore = inject(TeamupStore);
   clickupStore = inject(ClickupStore);
+  globalStore = inject(GlobalStore);
 
   // Get events from the store
   readonly events = this.teamupStore.getUserCalendar;
   readonly subCalenders = this.teamupStore.getSubcalendars();
+  readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
 
   // FullCalendar options
   calendarOptions = signal<CalendarOptions>({
@@ -112,9 +115,20 @@ export class FullCalendarComponent {
     { allowSignalWrites: true }
   );
 
+  private nonWorkingDaysEffect = effect(
+    () => {
+      const nonWorkingDaysState = this.nonWorkingDaysState();
+      const currentEvents = this.events();
+      this.updateCalendarEvents(currentEvents, nonWorkingDaysState);
+    },
+    { allowSignalWrites: true }
+  );
+
   // Method to update calendar events
   private updateCalendarEvents(events: any[], showSickDays: boolean) {
-    this.calendarOptions.set({ events: this.transformEvents(events, showSickDays) });
+    this.calendarOptions.set({
+      events: this.transformEvents(events, showSickDays),
+    });
   }
 
   // Method to transform the event data

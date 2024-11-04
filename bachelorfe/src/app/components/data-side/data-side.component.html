@@ -2,8 +2,8 @@
 
     <ng-container *ngIf="shouldRender">
         <div class="w-full min-h-[67px] flex flex-row">
-            <div (click)="visArbejdstimer()"[ngClass]="{'bg-blue-500': activeTab === 'arbejdstimer', 'hover:bg-surface-lightmodeHover': activeTab !== 'arbejdstimer'}" class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">Arbejdstimer</div>
-            <div (click)="visFridage()"[ngClass]="{'bg-blue-500': activeTab === 'fridage', 'hover:bg-surface-lightmodeHover': activeTab !== 'fridage'}"class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">Fridage</div>
+            <div (click)="visArbejdstimer()"[ngClass]="{'bg-blue-500': !globalStore.showNonWorkingDays(), 'hover:bg-surface-lightmodeHover': !!globalStore.showNonWorkingDays()}" class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">Arbejdstimer</div>
+            <div (click)="visFridage()"[ngClass]="{'bg-blue-500': globalStore.showNonWorkingDays(), 'hover:bg-surface-lightmodeHover': globalStore.showNonWorkingDays()}"class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">Fridage</div>
         </div>
     </ng-container>
 
