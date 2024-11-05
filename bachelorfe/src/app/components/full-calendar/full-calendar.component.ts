@@ -22,7 +22,8 @@ interface CalendarEvent {
 })
 export class FullCalendarComponent {
   calendarVisible = signal(true);
-  currentEvents = signal<CalendarEvent[]>([]);
+
+  todaysDate = new Date();
 
   teamupStore = inject(TeamupStore);
   clickupStore = inject(ClickupStore);
@@ -38,10 +39,11 @@ export class FullCalendarComponent {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin],
     locale: 'da',
     headerToolbar: {
-      left: 'prev,next today',
+      left: 'prev today next',
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay',
     },
+    
     initialView: 'timeGridWeek',
     weekends: true,
     editable: true,
@@ -70,26 +72,43 @@ export class FullCalendarComponent {
     eventContent: (arg) => {
       const { event } = arg;
       const { extendedProps } = event;
-
-      // Example: Display task details if available
+    
+      // Set default title
       const title = event.title || 'Event';
       const taskDetails = extendedProps['taskDetails'];
-
-      // You can customize the display as needed
+    
+      // Handle cases where taskDetails is null or undefined
+      if (!taskDetails || taskDetails.length === 0) {
+        return { html: `<div><strong>${title}</strong></div>` };
+      }
+    
+      // Render multiple task details if available
+      const taskContent = taskDetails
+        .map((task:any) => `
+          <div class="task-detail">
+            <div><strong>${task.title}</strong></div>
+            <div>${task.duration.hours}h ${task.duration.minutes}m</div>
+          </div>
+        `)
+        .join('');
+    
       return {
         html: `
           <div class="border-b">
             <strong>${title}</strong>
-            ${taskDetails ? `<div>${taskDetails.title}</div>` : ''}
-            ${
-              taskDetails
-                ? `<div>${taskDetails.duration.hours}h ${taskDetails.duration.minutes}m</div>`
-                : ''
-            }
+            ${taskContent}
           </div>
         `,
       };
     },
+    datesSet: (arg) => {
+      const startDate = arg.start.toISOString().split('T')[0];
+      const endDate = arg.end.toISOString().split('T')[0];
+      const activeMember = this.clickupStore.activeMember()
+      if (activeMember) {
+          this.teamupStore.setUserEvents(activeMember[0]?.email, startDate, endDate);
+      } 
+  },
   });
 
   visArbejdstimer() {
@@ -152,33 +171,30 @@ export class FullCalendarComponent {
     events.forEach((event) => {
       if (allowedCalendarIds.includes(event.subcalendar_id)) {
         const eventStartDate = new Date(event.start_dt).toDateString(); // Gets a string like "Fri Nov 01 2024"
-
-        // Find the corresponding task based on the logged date
-        const correspondingTask = clickupTasks.find((task: any) => {
-          // Convert the dateLogged from string to a number and then to a Date object
-          const taskDate = new Date(parseInt(task.dateLogged)); // Ensure we're converting to a number
-          const taskStartDate = taskDate.toDateString(); // Convert to date string for comparison
-
-          // Return true if the dates match
+    
+        // Find all corresponding tasks based on the logged date
+        const correspondingTasks = clickupTasks.filter((task: any) => {
+          const taskDate = new Date(parseInt(task.dateLogged));
+          const taskStartDate = taskDate.toDateString();
           return taskStartDate === eventStartDate;
         });
-
+    
         transformedEvents.push({
           id: event.id,
-          title: ' ', // maybe show type of calendar?=
+          title: ' ', // maybe show type of calendar?
           start: event.start_dt,
           end: event.end_dt,
           allDay: event.all_day || false,
           extendedProps: {
             email: event.custom?.email || '',
-            taskDetails: correspondingTask
-              ? {
-                  title: correspondingTask.taskTitle,
-                  dateLogged: correspondingTask.dateLogged,
-                  loggedBy: correspondingTask.loggedBy,
-                  duration: correspondingTask.duration, // or any other property you want to include
-                }
-              : null, // Set to null if no corresponding task is found
+            taskDetails: correspondingTasks.length > 0
+              ? correspondingTasks.map((task: any) => ({
+                  title: task.taskTitle,
+                  dateLogged: task.dateLogged,
+                  loggedBy: task.loggedBy,
+                  duration: task.duration, // or any other property you want to include
+                }))
+              : null, // Set to null if no corresponding tasks are found
           },
         });
       }

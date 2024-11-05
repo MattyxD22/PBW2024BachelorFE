@@ -13,8 +13,6 @@ export class ClickupService {
   }
 
   clickupFetchTasks(email:string){
-    console.log('before fetch');
-    
     return this.http.get<any[]>(`http://localhost:3000/api/clickup/tasks/${email}`);
   }
 

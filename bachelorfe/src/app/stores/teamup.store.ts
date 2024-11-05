@@ -44,28 +44,22 @@ export const TeamupStore = signalStore(
           console.log('Authentication required before fetching users.');
         }
       },
-      setUserEvents: (email: string) => {
-        teamupService.teamupFetchUserCalendar(email).subscribe({
+      setUserEvents: (email: string, startDate?: string, endDate?: string) => {
+        if (!email) {
+          console.log('No email provided to fetch user events');
+          return; // Early exit if no email
+        }
+
+        console.log('userEmail: ', email);
+        teamupService.teamupFetchUserCalendar(email, startDate, endDate).subscribe({
           next: (res: any) => {
             patchState(store, { userCalendar: res.events });
           },
           error: (error) => {
-            console.log('Error fetching user calendar');
+            console.log('Error fetching user calendar:', error);
           }
-        })
+        });
       },
-      setCalender: () => {
-        teamupService.teamupFetchCalendar().subscribe({
-          next: (res: any) => {
-            console.log(res)
-            patchState(store, { userCalendar: res })
-          },
-          error: (error) => {
-            console.log('Error fetching user calendar');
-          }
-        })
-      },
-      
       setSubCalender: () => {
         teamupService.teamupFetchSubCalendar().subscribe({
           next: (res: any) => {
