@@ -8,22 +8,17 @@ import { GlobalStore } from '../../stores/global.store';
   standalone: true,
   imports: [CommonModule, FullCalendarComponent],
   templateUrl: './data-side.component.html',
-  styleUrls: ['./data-side.component.scss'] // Korrekt navn (styleUrls)
+  styleUrls: ['./data-side.component.scss'] 
 })
 export class DataSideComponent {
   protected readonly globalStore = inject(GlobalStore)
-  //@ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
   @Input() shouldRender: boolean = true;
 
   visArbejdstimer() {
     this.globalStore.setShowNonWorkingDays(false)
-    //this.activeTab = 'arbejdstimer'; // Opdater aktiv tilstand
-    //this.fullCalendarComponent.visArbejdstimer(); // Kald metoden fra FullCalendarComponent
   }
 
   visFridage() {
     this.globalStore.setShowNonWorkingDays(true)
-    //this.activeTab = 'fridage'; // Opdater aktiv tilstand
-    //this.fullCalendarComponent.visFridage(); // Kald metoden fra FullCalendarComponent
   }
 }

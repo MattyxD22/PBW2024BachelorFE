@@ -1,6 +1,6 @@
-<div class="flex w-full" [ngClass]="deviceTypeStore.isDesktop() ? 'flex-row' : 'flex-col'">
+<div class="flex w-full mx-auto width-class" [ngClass]="deviceTypeStore.isDesktop() ? 'flex-row' : 'flex-col'">
     <ng-container *ngIf="deviceTypeStore.isDesktop()">
-        <div  class="h-full w-1/5 border-2 border-black-500">
+        <div  class="h-full w-2/12 border-2 border-black-500">
             <app-user-side-component></app-user-side-component>
         </div>
     </ng-container>
@@ -8,7 +8,7 @@
         <app-m-header></app-m-header>
     </ng-container>
     
-    <div class="h-full border-2 border-black-500" [ngClass]="deviceTypeStore.isDesktop() ? ' w-4/5':'w-full'">
+    <div class="h-full border-2 border-black-500" [ngClass]="deviceTypeStore.isDesktop() ? ' w-10/12':'w-full'">
         <app-data-side [shouldRender]="deviceTypeStore.isDesktop()" [ngClass]="['items-center', 'justify-center', 'h-full', 'overflow-hidden']">
         </app-data-side>
     </div>

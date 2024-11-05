@@ -1,0 +1,15 @@
+
+  @media (min-aspect-ratio: 20/9) {
+    .width-class {
+        width:100%;
+        max-width:2560px;
+    }
+  }
+  
+  @media (min-aspect-ratio: 31/9) {
+    .width-class {
+        width:100%;
+        max-width:3480px;
+    }
+  }
+  
