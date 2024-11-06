@@ -107,7 +107,7 @@ export class FullCalendarComponent {
       const endDate = arg.end.toISOString().split('T')[0];
       const activeMember = this.clickupStore.activeMember()
       if (activeMember) {
-          this.teamupStore.setUserEvents(activeMember[0]?.email, startDate, endDate);
+          this.teamupStore.setUserEvents(activeMember.email, startDate, endDate);
       } 
   },
   });

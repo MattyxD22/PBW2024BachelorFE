@@ -2,17 +2,18 @@ import { signalStore, withComputed, withState, withMethods, patchState } from '@
 import { computed, inject } from '@angular/core';
 import { TeamupService } from '../services/teamupServices/teamup.service';
 import { ClickupService } from '../services/clickupServices/clickup.service';
+import { userType } from '../types/user.types';
 
 type clickupState = {
-    members: any,
+    members: userType[],
     tasks: any,
-    activeMember: any
+    activeMember: userType
 };
 
 const initialState: clickupState = {
     members: [],
     tasks: [],
-    activeMember: []
+    activeMember: { email: '', name: '' } as userType,
 };
 
 export const ClickupStore = signalStore(
@@ -50,7 +51,7 @@ export const ClickupStore = signalStore(
                     }
                 })
             },
-            setActiveMember: (member:any) => {
+            setActiveMember: (member:userType) => {
                 patchState(store, {activeMember: member})
             }
         }
