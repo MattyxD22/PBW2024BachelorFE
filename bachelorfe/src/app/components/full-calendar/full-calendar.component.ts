@@ -8,6 +8,8 @@ import { EventService } from '../event-all/event-all.component';
 import { TeamupStore } from '../../stores/teamup.store';
 import { ClickupStore } from '../../stores/clickup.store';
 import { GlobalStore } from '../../stores/global.store';
+import { clickupTaskType } from '../../types/clickup-task.type';
+import { teamupEventType } from '../../types/teamup-events.type';
 interface CalendarEvent {
   title: string;
   start: string;
@@ -71,6 +73,7 @@ export class FullCalendarComponent {
     },
     events: [], // Initialize with an empty array
     eventContent: (arg) => {
+      
       const { event } = arg;
       const { extendedProps } = event;
     
@@ -86,7 +89,7 @@ export class FullCalendarComponent {
       // Render multiple task details if available
       const taskContent = taskDetails
         .map((task:any) => `
-          <div class="task-detail">
+          <div class="task-detail border-b px-1 py-1 bg-surface-calendarItem mx-1 my-1 rounded shadow-2xl">
             <div><strong>${task.title}</strong></div>
             <div>${task.duration.hours}h ${task.duration.minutes}m</div>
           </div>
@@ -95,7 +98,7 @@ export class FullCalendarComponent {
     
       return {
         html: `
-          <div class="border-b">
+          <div class="">
             <strong>${title}</strong>
             ${taskContent}
           </div>
@@ -169,22 +172,24 @@ export class FullCalendarComponent {
 
     const clickupTasks = this.clickupStore.tasks();
 
-    events.forEach((event) => {
-      if (allowedCalendarIds.includes(event.subcalendar_id)) {
-        const eventStartDate = new Date(event.start_dt).toDateString(); // Gets a string like "Fri Nov 01 2024"
+    events.forEach((event: teamupEventType) => {
+      if (allowedCalendarIds.includes(event.subcalenderId)) {
+        const eventStartDate = new Date(event.startDate).toDateString(); // Gets a string like "Fri Nov 01 2024"
     
         // Find all corresponding tasks based on the logged date
-        const correspondingTasks = clickupTasks.filter((task: any) => {
+        const correspondingTasks = clickupTasks.filter((task: clickupTaskType) => {
+          
           const taskDate = new Date(parseInt(task.dateLogged));
           const taskStartDate = taskDate.toDateString();
           return taskStartDate === eventStartDate;
         });
+        
     
         transformedEvents.push({
           id: event.id,
           title: ' ', // maybe show type of calendar?
-          start: event.start_dt,
-          end: event.end_dt,
+          start: event.startDate,
+          end: event.endDate,
           allDay: event.all_day || false,
           extendedProps: {
             email: event.custom?.email || '',
@@ -199,10 +204,7 @@ export class FullCalendarComponent {
           },
         });
       }
-    });
-
-    console.log(transformedEvents);
-
+    });    
     return transformedEvents;
   }
 }

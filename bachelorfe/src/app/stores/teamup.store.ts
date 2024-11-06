@@ -1,17 +1,22 @@
 import { signalStore, withComputed, withState, withMethods, patchState } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
 import { TeamupService } from '../services/teamupServices/teamup.service';
+import { userType } from '../types/user.type';
+import { subcalendarType } from '../types/teamup-subcalendar.type';
+import { teamupEventType } from '../types/teamup-events.type';
 
 type teamupState = {
-  users: any[],
-  subcalendars: any[],
-  userCalendar: any[]
+  users: userType[],
+  subcalendars: subcalendarType[],
+  userCalendar: teamupEventType[],
+  userSearchString: string,
 };
 
 const initialState: teamupState = {
   users: [],
   subcalendars: [],
   userCalendar: [],
+  userSearchString: '',
 };
 
 export const TeamupStore = signalStore(
@@ -23,6 +28,11 @@ export const TeamupStore = signalStore(
     getUsers: computed(() => state.users()),
     getSubcalendars: computed(() => state.subcalendars()),
     getUserCalendar: computed(() => state.userCalendar()),
+    getSearchedUsers: computed(() => 
+      state.users().filter((user: userType) => 
+        user.name.toLowerCase().includes(state.userSearchString().toLowerCase())
+      )
+    ),
   })),
 
   withMethods((store) => {
@@ -34,7 +44,7 @@ export const TeamupStore = signalStore(
 
           teamupService.teamupFetchUsers().subscribe({
             next: (res: any) => {
-              patchState(store, { users: res.users });
+              patchState(store, { users: res });
             },
             error: (error) => {
               console.error('Error fetching users:', error);
@@ -49,11 +59,9 @@ export const TeamupStore = signalStore(
           console.log('No email provided to fetch user events');
           return; // Early exit if no email
         }
-
-        console.log('userEmail: ', email);
         teamupService.teamupFetchUserCalendar(email, startDate, endDate).subscribe({
           next: (res: any) => {
-            patchState(store, { userCalendar: res.events });
+            patchState(store, { userCalendar: res });
           },
           error: (error) => {
             console.log('Error fetching user calendar:', error);
@@ -63,13 +71,16 @@ export const TeamupStore = signalStore(
       setSubCalender: () => {
         teamupService.teamupFetchSubCalendar().subscribe({
           next: (res: any) => {
-            patchState(store, { subcalendars: res.subcalendars })
+            patchState(store, { subcalendars: res })
           },
           error: (error) => {
             console.log('Error fetching user calendar');
           }
         })
       },
+      setSearchUserString: (searchString: string) => {
+        patchState(store, {userSearchString: searchString})
+      }
     }
   }),
 );

@@ -2,11 +2,12 @@ import { signalStore, withComputed, withState, withMethods, patchState } from '@
 import { computed, inject } from '@angular/core';
 import { TeamupService } from '../services/teamupServices/teamup.service';
 import { ClickupService } from '../services/clickupServices/clickup.service';
-import { userType } from '../types/user.types';
+import { userType } from '../types/user.type';
+import { clickupTaskType } from '../types/clickup-task.type';
 
 type clickupState = {
     members: userType[],
-    tasks: any,
+    tasks: clickupTaskType[],
     activeMember: userType
 };
 
@@ -34,7 +35,7 @@ export const ClickupStore = signalStore(
             setMembers: () => {
                 clickupService.clickupFetchMembers().subscribe({
                     next: (res: any) => {
-                        patchState(store, { members: res.members });
+                        patchState(store, { members: res });
                     },
                     error: (error) => {
                         console.error('Error fetching users:', error);
@@ -51,7 +52,7 @@ export const ClickupStore = signalStore(
                     }
                 })
             },
-            setActiveMember: (member:userType) => {
+            setActiveMember: (member:userType) => {                
                 patchState(store, {activeMember: member})
             }
         }
