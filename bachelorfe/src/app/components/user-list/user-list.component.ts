@@ -33,8 +33,12 @@ export class UserListComponent {
 
   getUserCalendar(email: string) {
 
+    // store retrieved values for readability
+    const startOfWeek = this.globalStore.showingWeek().startOfWeek
+    const endOfWeek = this.globalStore.showingWeek().endOfWeek
+
     // Fetch data from stores to display events for the specific user
-    this.teamupStore.setUserEvents(email);
+    this.teamupStore.setUserEvents(email, startOfWeek, endOfWeek);
     this.clickupStore.setTasks(email);
     this.globalStore.setShowNonWorkingDays(false); // Defaults to "Arbejdstimer"
 

@@ -2,19 +2,31 @@
 
     <ng-container *ngIf="shouldRender">
         <div class="w-full min-h-[67px] flex flex-row">
-            <div (click)="visArbejdstimer()"[ngClass]="{'bg-blue-500': !globalStore.showNonWorkingDays(), 'hover:bg-surface-lightmodeHover': !!globalStore.showNonWorkingDays()}" class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">Arbejdstimer</div>
-            <div (click)="visFridage()"[ngClass]="{'bg-blue-500': globalStore.showNonWorkingDays(), 'hover:bg-surface-lightmodeHover': globalStore.showNonWorkingDays()}"class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">Fridage</div>
+            <div (click)="visArbejdstimer()"
+                [ngClass]="{'bg-blue-500': !globalStore.showNonWorkingDays(), 'hover:bg-surface-lightmodeHover': !!globalStore.showNonWorkingDays()}"
+                class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">
+                Arbejdstimer</div>
+            <div (click)="visFridage()"
+                [ngClass]="{'bg-blue-500': globalStore.showNonWorkingDays(), 'hover:bg-surface-lightmodeHover': globalStore.showNonWorkingDays()}"
+                class="w-1/2 border-2 text-2xl font-semibold text-black content-center text-center hover:cursor-pointer">
+                Fridage</div>
         </div>
     </ng-container>
 
     <div class="flex flex-col flex-grow border-2 content-center justify-center overflow-hidden">
         <app-full-calendar [ngClass]="['w-full', 'px-24', 'content-center']"></app-full-calendar>
         <div class="flex flex-row w-full justify-end content-center pb-12 pr-12">
-            <p-button pRipple pButton label="parse" (onClick)="parseData()"></p-button>
-    
+
+            <div class="flex flex-col p-2">
+                <p-calendar [(ngModel)]="rangeDates" selectionMode="range" />
+            </div>
+
+            <div class="flex flex-col p-2">
+                <p-button pRipple pButton label="parse" (onClick)="parseData()"></p-button>
+
+            </div>
+
+
         </div>
     </div>
-
-    
-
 </div>

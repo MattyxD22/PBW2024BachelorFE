@@ -89,29 +89,9 @@ export const TeamupStore = signalStore(
       setSearchUserString: (searchString: string) => {
         patchState(store, {userSearchString: searchString})
       },
-      parseStoreUserEvents: (userEmail: string) => {
-        teamupService.teamupFetchUserCalendar(userEmail).subscribe({
-          next: (res: any) =>{           
-
-            patchState(store, {
-            
-              parsedData: {
-                ...store.parsedData(),
-                userEmail: userEmail,
-                userEvents: [
-                  ...store.parsedData().userEvents, // Keep existing events
-                  ...res // Add new events from the response
-                ]
-              }
-              
-            })
-            console.log(store.parsedData());
-            
-          },
-          error: (error)=>{
-            console.log('Error in function parseStoreUserEvents')
-          }
-        })
+      // only fetches data, does not patch it
+      fetchUserEvents: (userEmail: string, startDate?: string, endDate?: string) => {
+        return teamupService.teamupFetchUserCalendar(userEmail, startDate, endDate);
       }
     }
   }),

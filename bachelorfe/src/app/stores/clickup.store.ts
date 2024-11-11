@@ -52,6 +52,12 @@ export const ClickupStore = signalStore(
                     }
                 })
             },
+
+            // only fetches data, does not patch it
+            fetchTaskForUser: (email: string) => {
+                return clickupService.clickupFetchTasks(email);
+              },
+
             setActiveMember: (member:userType) => {                
                 patchState(store, {activeMember: member})
             }
