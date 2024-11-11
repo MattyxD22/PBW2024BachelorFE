@@ -7,7 +7,14 @@
         </div>
     </ng-container>
 
-    <div class="flex flex-grow border-2 content-center justify-center overflow-hidden">
+    <div class="flex flex-col flex-grow border-2 content-center justify-center overflow-hidden">
         <app-full-calendar [ngClass]="['w-full', 'px-24', 'content-center']"></app-full-calendar>
+        <div class="flex flex-row w-full justify-end content-center pb-12 pr-12">
+            <p-button pRipple pButton label="parse" (onClick)="parseData()"></p-button>
+    
+        </div>
     </div>
+
+    
+
 </div>

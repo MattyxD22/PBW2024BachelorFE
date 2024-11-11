@@ -10,6 +10,10 @@ type teamupState = {
   subcalendars: subcalendarType[],
   userCalendar: teamupEventType[],
   userSearchString: string,
+  parsedData: {
+    userEmail: string,
+    userEvents: any[],
+  },
 };
 
 const initialState: teamupState = {
@@ -17,6 +21,10 @@ const initialState: teamupState = {
   subcalendars: [],
   userCalendar: [],
   userSearchString: '',
+  parsedData: {
+    userEmail: '',
+    userEvents: [],
+  },
 };
 
 export const TeamupStore = signalStore(
@@ -80,6 +88,30 @@ export const TeamupStore = signalStore(
       },
       setSearchUserString: (searchString: string) => {
         patchState(store, {userSearchString: searchString})
+      },
+      parseStoreUserEvents: (userEmail: string) => {
+        teamupService.teamupFetchUserCalendar(userEmail).subscribe({
+          next: (res: any) =>{           
+
+            patchState(store, {
+            
+              parsedData: {
+                ...store.parsedData(),
+                userEmail: userEmail,
+                userEvents: [
+                  ...store.parsedData().userEvents, // Keep existing events
+                  ...res // Add new events from the response
+                ]
+              }
+              
+            })
+            console.log(store.parsedData());
+            
+          },
+          error: (error)=>{
+            console.log('Error in function parseStoreUserEvents')
+          }
+        })
       }
     }
   }),
