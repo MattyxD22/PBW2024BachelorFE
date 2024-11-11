@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 import { TeamupStore } from '../../stores/teamup.store';
 import { ClickupStore } from '../../stores/clickup.store';
 import { GlobalStore } from '../../stores/global.store';
+import { userType } from '../../types/user.type';
 
 @Component({
   selector: 'app-user-list',
@@ -22,15 +23,26 @@ export class UserListComponent {
   // Create a signal to hold users
   users = this.teamupStore.getUsers()
 
+  selectedMember = this.clickupStore.activeMember()
+  private selectedMemberEffect = effect(
+    () => {
+      this.selectedMember = this.clickupStore.activeMember()
+    },
+    { allowSignalWrites: true }
+  );
+
   getUserCalendar(email: string) {
-    // fetch data from stores to display events for the specific user
+
+    // Fetch data from stores to display events for the specific user
     this.teamupStore.setUserEvents(email);
-    this.clickupStore.setTasks(email)
-    this.globalStore.setShowNonWorkingDays(false) // defaults to "Arbejdstimer"
+    this.clickupStore.setTasks(email);
+    this.globalStore.setShowNonWorkingDays(false); // Defaults to "Arbejdstimer"
 
-    // store selected user, to be able to use when scrolling through weeks
-    this.clickupStore.setActiveMember(this.clickupStore.members().filter((member: any)=> member.email === email))   
+    // Store the selected user, allowing the app to use it when scrolling through weeks
+    const user = this.clickupStore.members().find((member: userType) => member.email === email);
 
+    if (user) {
+      this.clickupStore.setActiveMember(user);
+    }
   }
-
 }

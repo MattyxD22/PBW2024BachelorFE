@@ -55,8 +55,6 @@ export class TeamupService {
 
     // Append the parameters to the URL if any exist
     const fullUrl = params.length ? `${url}?${params.join('&')}` : url;
-    console.log('Full URL:', fullUrl, 'Params:', params);
-
     return this.http.get<any[]>(fullUrl, { headers });
   }
 

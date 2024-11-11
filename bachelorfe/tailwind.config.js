@@ -34,7 +34,8 @@ module.exports = {
           secondaryColor: "#2D3D4F",
           lightmodeHover: "#BAF2E4",
           headerColor: "#6E6D6D",
-          calenderBlock: "#2D3D4F"
+          calendarBlock: "#2D3D4F",
+          calendarItem: "#419729"
         },
         text: {
           primary: "#2D3D4F",
