@@ -48,11 +48,12 @@ export class FullCalendarComponent {
     
     initialView: 'timeGridWeek',
     weekends: true,
-    editable: true,
-    selectable: true,
+    editable: false,
+    selectable: false,
     selectMirror: true,
     dayMaxEvents: true,
     expandRows: true,
+    nowIndicator: true,
     firstDay: 1,
     eventBackgroundColor: 'PrimaryColor',
     businessHours: {
@@ -70,6 +71,7 @@ export class FullCalendarComponent {
         slotDuration: '00:30:00',
       },
     },
+    
     events: [], // Initialize with an empty array
     eventContent: (arg) => {
       

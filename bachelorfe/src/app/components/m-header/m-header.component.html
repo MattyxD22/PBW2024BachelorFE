@@ -2,7 +2,7 @@
     <div class="flex flex-row w-full  relative">
         <div class="user-item flex flex-row p-6 hover:bg-surface-lightmodeHover">
             <p-button pRipple pButton label="mc" class="w-[65px] h-[65px] rounded-full border-2 border-black-500 mr-6" (onClick)="toggleMenuLeft()" />
-            <span class="text-2xl font-semibold text-black content-center">Mathias Christensen</span>
+            <span class="text-2xl font-semibold text-black content-center"> {{ activeUser.name }}</span>
         </div>
 
           <div class="mx-auto flex justify-center content-center">

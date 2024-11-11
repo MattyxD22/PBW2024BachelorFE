@@ -1,15 +1,17 @@
 <div class="h-full flex flex-col">
     <div class="h-[65px] min-h-[65px] flex-shrink-0 flex items-center justify-center border-2 border-black-500">
-        <p-iconField iconPosition="right" class=" w-[90%] h-[75%] p-2 hover:cursor-pointer flex mx-auto my-auto items-center"  >
-            <p-inputIcon styleClass="pi pi-search" />
+        <div class="h-[90%] min-h-[90%] flex items-center w-[85%] hover:cursor-pointer relative">
             <input
-            (input)="searchUser($event)"
-            type="text"  
-            placeholder="Search..." 
-            pInputText
-            class="bg-gray-400 text-white py-2 pl-2" 
+                (input)="searchUser($event)"
+                type="text"  
+                placeholder="Search..." 
+                pInputText
+                class="bg-gray-400 text-white py-2 pl-2 pr-8 w-full" 
             />
-        </p-iconField>
+            <div class="absolute right-2">
+                <i class="pi pi-search text-white pr-2"></i> 
+            </div>
+        </div>
     </div>
 
     <div class="flex-grow border-2 border-black-500 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-surface-PrimaryColor scrollbar-track-gray-200">

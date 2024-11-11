@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UserListComponent } from "../user-list/user-list.component";
 import { ButtonModule } from "primeng/button"
 import { CommonModule } from '@angular/common';
 import { UserSideComponent } from "../user-side-component/user-side.component";
+import { ClickupStore } from '../../stores/clickup.store';
 
 @Component({
   selector: 'app-m-header',
@@ -12,6 +13,9 @@ import { UserSideComponent } from "../user-side-component/user-side.component";
   styleUrl: './m-header.component.scss'
 })
 export class MHeaderComponent {
+  protected readonly clickupStore = inject(ClickupStore)
+
+  activeUser = this.clickupStore.activeMember()
 
   showLeftMenu = false;
   showRightMenu = false;
@@ -20,8 +24,8 @@ export class MHeaderComponent {
     this.showRightMenu = false
     this.showLeftMenu = !this.showLeftMenu
   }
-  toggleMenuRight() {
 
+  toggleMenuRight() {
     this.showLeftMenu = false
     this.showRightMenu = !this.showRightMenu
   }
