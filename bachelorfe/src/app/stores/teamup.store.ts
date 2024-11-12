@@ -10,6 +10,10 @@ type teamupState = {
   subcalendars: subcalendarType[],
   userCalendar: teamupEventType[],
   userSearchString: string,
+  parsedData: {
+    userEmail: string,
+    userEvents: any[],
+  },
 };
 
 const initialState: teamupState = {
@@ -17,6 +21,10 @@ const initialState: teamupState = {
   subcalendars: [],
   userCalendar: [],
   userSearchString: '',
+  parsedData: {
+    userEmail: '',
+    userEvents: [],
+  },
 };
 
 export const TeamupStore = signalStore(
@@ -80,6 +88,10 @@ export const TeamupStore = signalStore(
       },
       setSearchUserString: (searchString: string) => {
         patchState(store, {userSearchString: searchString})
+      },
+      // only fetches data, does not patch it
+      fetchUserEvents: (userEmail: string, startDate?: string, endDate?: string) => {
+        return teamupService.teamupFetchUserCalendar(userEmail, startDate, endDate);
       }
     }
   }),

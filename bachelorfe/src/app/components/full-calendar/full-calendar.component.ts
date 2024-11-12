@@ -43,7 +43,7 @@ export class FullCalendarComponent {
     headerToolbar: {
       left: 'prev today next',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay',
+      right: 'timeGridDay,timeGridWeek,dayGridMonth',
     },
     
     initialView: 'timeGridWeek',
@@ -109,6 +109,10 @@ export class FullCalendarComponent {
     datesSet: (arg) => {
       const startDate = arg.start.toISOString().split('T')[0];
       const endDate = arg.end.toISOString().split('T')[0];
+
+      // update the store, with the start and end date of the currently visible week
+      this.globalStore.setShowingWeek(startDate, endDate)
+
       const activeMember = this.clickupStore.activeMember()
       if (activeMember) {
           this.teamupStore.setUserEvents(activeMember.email, startDate, endDate);
@@ -181,7 +185,9 @@ export class FullCalendarComponent {
         const correspondingTasks = clickupTasks.filter((task: clickupTaskType) => {
           
           const taskDate = new Date(parseInt(task.dateLogged));
+          
           const taskStartDate = taskDate.toDateString();
+          console.log(taskStartDate, eventStartDate);
           return taskStartDate === eventStartDate;
         });
         
