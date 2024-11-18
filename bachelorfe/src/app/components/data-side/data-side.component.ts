@@ -55,38 +55,44 @@ export class DataSideComponent {
     console.log('parsing', startDate, endDate)
     const userObservables = users.map((user: userType) => {
       const userEmail = user.email;
-  
-      // Combine both observables and return the combined result
+    
       return forkJoin({
-
         userEvents: this.teamupStore.fetchUserEvents(userEmail, startDate, endDate),
         userTasks: this.clickupStore.fetchTaskForUser(userEmail),
       }).pipe(
-        // Map the result into the desired format
         map(({ userEvents, userTasks }) => {
-          // Filter the userTasks to include only those within the selected date range
-          const filteredTasks = userTasks.filter((task: clickupTaskType) => {
-            const taskDate = new Date(parseInt(task.dateLogged)); // Assuming dateLogged is a timestamp
-            console.log(taskDate);
-            
-            return taskDate >= new Date(startDate) && taskDate <= new Date(endDate);
+          // Format userEvents to include email and parsed hours
+          const formattedUserEvents = userEvents.map(event => {
+            const start = new Date(event.startDate);
+            const end = new Date(event.endDate);
+            const hours = (end.getTime() - start.getTime()) / 3600000; // Calculate hours
+    
+            return {
+              email: userEmail,
+              hours: hours.toFixed(2), // rounding to 2 decimal places
+            };
           });
     
+          // Exclude email and hours from userTasks
+          const formattedUserTasks = userTasks.map(task => {
+            const { loggedBy, duration, ...taskWithoutEmailAndHours } = task;
+            return taskWithoutEmailAndHours;
+          });
+
           return {
             userEmail,
-            userTasks: filteredTasks, // Only tasks within the selected date range
-            userEvents,
-          };
+            userEvents: formattedUserEvents,
+            userTasks: formattedUserTasks
+          }
+
+          
         })
       );
     });
-  
-    // Use forkJoin to wait for all observables to complete
+    
     forkJoin(userObservables).subscribe({
       next: (results) => {
-        tasks = results as ParsedData[]; // Assign the fetched data to tasks
-        console.log(tasks);
-        
+        this.globalStore.sendExportdata(results)
       },
       error: (error) => {
         console.error('Error fetching user data:', error);

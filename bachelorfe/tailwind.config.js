@@ -237,6 +237,9 @@ module.exports = {
         },
       },
     },
+    maxHeight:{
+      'calc-100-minus-100':'calc(100% - 100px)'
+    }
   },
   plugins: [
     require('tailwind-scrollbar'),

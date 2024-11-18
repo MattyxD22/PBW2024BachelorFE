@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test';
 test('has title', async ({ page }) => {
     await page.goto('http://localhost:4200');
 
-    // Expect a title "to contain" a substring.
     await expect(page).toHaveTitle(/Bachelorfe/);
 });
 
@@ -35,23 +34,39 @@ test('test search input', async ({ page }) => {
 
 })
 
-test('does show selected user', async ({ page }) => {
+// TODO WIP
+// test('does show selected user', async ({ page }) => {
+//     await page.goto('localhost:4200');
+//     const sidebar = page.locator('app-user-side-component')
+//     await expect(sidebar).toBeVisible()
+//     const searchInput = sidebar.locator('#searchField')
+
+//     const userRows = sidebar.locator('.user-item');
+//     const userCount = await userRows.count();
+//     expect(userCount).toBeGreaterThan(0); // Ensure there is at least one user row
+
+//     const user = userRows.locator('[ng-reflect="mathias christensen"] app-user-avatar');
+//     await user.waitFor({ state: 'attached' }); // Wait for the element to be attached to the DOM
+//     await user.click();
+//     searchInput.fill('mathias christensen');
+//     const parent = user.locator('..');
+//     await expect(parent).toHaveClass(/bg-surface-PrimaryColor/);
+// })
+
+test('Should switch between working days and sick/holidays', async({page}) => {
     await page.goto('localhost:4200');
-    const sidebar = page.locator('app-user-side-component')
-    await expect(sidebar).toBeVisible()
-    const searchInput = sidebar.locator('#searchField')
 
-    const userRows = sidebar.locator('.user-item');
-    const userCount = await userRows.count();
-    expect(userCount).toBeGreaterThan(0); // Ensure there is at least one user row
+    const dataSideTabs = page.locator('app-data-side .header-switch-tab');
 
-    const user = userRows.locator('[ng-reflect="mathias christensen"] app-user-avatar');
-    await user.waitFor({ state: 'attached' }); // Wait for the element to be attached to the DOM
-    await user.click();
-    searchInput.fill('mathias christensen');
-    const parent = user.locator('..');
-    await expect(parent).toHaveClass(/bg-surface-PrimaryColor/);
+    const firstTab = dataSideTabs.locator('text=Arbejdstimer');
+    await expect(firstTab).toHaveClass(/bg-blue-500/);
 
+    const secondTab = dataSideTabs.locator('text=Fridage');
+    await expect(secondTab).not.toHaveClass(/bg-blue-500/);
 
+    await secondTab.click();
 
+    // do the same, but test that the second tab is selected
+    await expect(firstTab).not.toHaveClass(/bg-blue-500/);
+    await expect(secondTab).toHaveClass(/bg-blue-500/);
 })

@@ -1,5 +1,6 @@
 import { signalStore, withComputed, withState, withMethods, patchState } from '@ngrx/signals';
-import { computed } from '@angular/core';
+import { computed, inject } from '@angular/core';
+import { GlobalService } from '../services/global.service';
 
 type globalState = {
     showNonWorkingDays: any,
@@ -24,6 +25,7 @@ export const GlobalStore = signalStore(
     })),
 
     withMethods((store) => {
+        const globalService = inject(GlobalService)
         return {
             setShowNonWorkingDays: (state: boolean) => {
                 patchState(store, {showNonWorkingDays: state})
@@ -33,6 +35,11 @@ export const GlobalStore = signalStore(
             // that way, the backend knows from when the data should be retrieved 
             setShowingWeek: (startOfWeek: string, endOfWeek: string) => {
                 patchState(store, {showingWeek: {startOfWeek, endOfWeek}})
+            },
+            // TODO Create type for csvData
+            sendExportdata:(csvData: any)=>{
+                alert(1)
+                globalService.exportCSV(csvData)
             }
 
         }
