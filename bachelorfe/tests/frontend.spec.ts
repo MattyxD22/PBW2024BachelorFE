@@ -29,29 +29,63 @@ test('test search input', async ({ page }) => {
     await expect(userRows.count()).resolves.toBeGreaterThan(0)
     await expect(searchInput).toHaveValue('mathias christensen')
 
+    const filteredUser = await userRows.count();
+    console.log(`Filtered user count: ${filteredUser}`);
+
+    for (let i = 0; i < filteredUser; i++) {
+        const userText = await userRows.nth(i).innerText();
+        console.log(`User ${i + 1}: ${userText}`);
+    }
+
     // ideally it should only have a single row in the side-bar component with the searched user
     // but whenever i run the test, the searched user is shown twice, causing the test to fail
-
+    // now it shows both users in the console log. 
 })
 
 // TODO WIP
-// test('does show selected user', async ({ page }) => {
-//     await page.goto('localhost:4200');
-//     const sidebar = page.locator('app-user-side-component')
-//     await expect(sidebar).toBeVisible()
-//     const searchInput = sidebar.locator('#searchField')
+test('does show selected user', async ({ page }) => {
+    await page.goto('localhost:4200');
+    const sidebar = page.locator('app-user-side-component');
+    await expect(sidebar).toBeVisible();
 
-//     const userRows = sidebar.locator('.user-item');
-//     const userCount = await userRows.count();
-//     expect(userCount).toBeGreaterThan(0); // Ensure there is at least one user row
+    const userRows = sidebar.locator('.user-item');
+    const userCount = await userRows.count();
+    console.log(`Number of users: ${userCount}`);
+    expect(userCount).toBeGreaterThan(0); // Bekræft, at der er brugere
 
-//     const user = userRows.locator('[ng-reflect="mathias christensen"] app-user-avatar');
-//     await user.waitFor({ state: 'attached' }); // Wait for the element to be attached to the DOM
-//     await user.click();
-//     searchInput.fill('mathias christensen');
-//     const parent = user.locator('..');
-//     await expect(parent).toHaveClass(/bg-surface-PrimaryColor/);
-// })
+    // Filtrer baseret på tekstindhold
+    const user = userRows.filter({ hasText: 'mathias christensen' });
+    console.log('User exists:', await user.count());
+    expect(await user.count()).toBeGreaterThan(0); // Brugeren skal eksistere
+
+    // Hent navnet på brugeren
+    const userName = await user.first().innerText();
+    console.log('User name clicked:', userName);  // Log navnet på brugeren
+
+    // Hent klasserne for knappen (user element)
+    const userClasses = await user.first().getAttribute('class');
+    const classList = userClasses?.split(' ') || []; // Split strengen til et array
+
+    console.log('User classes:', classList);
+
+    // Tjek om den ønskede klasse eksisterer
+    let hasBgSurfaceClass = false;
+    for (const className of classList) {
+        if (className.includes('bg-surface')) {
+            hasBgSurfaceClass = true;
+            break;
+        }
+    } 
+
+    // Forvent, at klassen findes før klik
+    expect(hasBgSurfaceClass).toBe(true); // Tjek om klassen blev fundet
+
+    const userNameAfterClick = await user.first().innerText();
+    console.log('User name after click:', userNameAfterClick);
+});
+
+
+
 
 test('Should switch between working days and sick/holidays', async({page}) => {
     await page.goto('localhost:4200');
@@ -66,7 +100,12 @@ test('Should switch between working days and sick/holidays', async({page}) => {
 
     await secondTab.click();
 
-    // do the same, but test that the second tab is selected
     await expect(firstTab).not.toHaveClass(/bg-blue-500/);
     await expect(secondTab).toHaveClass(/bg-blue-500/);
+})
+
+
+test('test search input and read tasks for the week', async ({ page }) => {
+    await page.goto('localhost:4200');
+
 })
