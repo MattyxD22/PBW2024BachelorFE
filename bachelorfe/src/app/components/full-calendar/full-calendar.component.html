@@ -1,1 +1,1 @@
-<full-calendar class="h-[100%]" [options]="options"></full-calendar>
+<full-calendar class="h-[100%]" [ngClass]="{'mobile-view': currentDevice() === 'mobile'}" [options]="options"></full-calendar>

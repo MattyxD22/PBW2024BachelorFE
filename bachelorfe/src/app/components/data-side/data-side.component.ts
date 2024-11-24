@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit, Signal, ViewChild, ViewEncapsulation, effect, inject } from '@angular/core';
 import { FullCalendarComponent } from '../full-calendar/full-calendar.component';
 import { GlobalStore } from '../../stores/global.store';
 import { ButtonModule } from 'primeng/button';
@@ -11,18 +11,20 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators'
 import { CalendarModule } from 'primeng/calendar';
 import { FormsModule } from '@angular/forms';
-import { clickupTaskType } from '../../types/clickup-task.type';
 
 @Component({
   selector: 'app-data-side',
   standalone: true,
   imports: [CommonModule, FullCalendarComponent, ButtonModule, CalendarModule, FormsModule],
   templateUrl: './data-side.component.html',
-  styleUrls: ['./data-side.component.scss'] 
+  styleUrls: ['./data-side.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
-export class DataSideComponent {
-  protected readonly globalStore = inject(GlobalStore)
+export class DataSideComponent implements AfterViewInit {
 
+
+  protected readonly globalStore = inject(GlobalStore)
   protected readonly clickupStore = inject(ClickupStore)
   protected readonly teamupStore = inject(TeamupStore)
 
@@ -30,6 +32,19 @@ export class DataSideComponent {
 
   //@ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
   @Input() shouldRender: boolean = true;
+  @Input() currentDevice!: Signal<string> // pass the device type store here as an input, to enable its features
+
+  ngAfterViewInit(): void {
+    
+  }
+  /**
+   *
+   */
+  constructor() {
+    effect(() => {
+      console.log('Current device type in child:', this.currentDevice());
+    });
+  }
 
   visArbejdstimer() {
     this.globalStore.setShowNonWorkingDays(false)

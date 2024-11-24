@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { ContainerComponent } from './components/container/container.component';
 import { TeamupService } from './services/teamupServices/teamup.service';
 import { TeamupStore } from './stores/teamup.store';
 import { ClickupStore } from './stores/clickup.store';
+import { DeviceTypeStore } from './stores/deviceTypes.store';
  
 @Component({
   selector: 'app-root',
@@ -35,5 +36,4 @@ export class AppComponent implements OnInit {
       },
     });
   }
-
 }

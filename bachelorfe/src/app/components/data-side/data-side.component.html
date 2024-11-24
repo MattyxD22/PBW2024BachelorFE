@@ -14,8 +14,16 @@
     </ng-container>
 
     <div class="flex flex-col flex-grow border-2 content-center justify-center overflow-hidden">
-        <app-full-calendar [ngClass]="['w-full', 'px-24 py-6', 'content-center', 'max-h-calc-100-minus-100']"></app-full-calendar>
-        <div class="flex flex-row flex-grow w-full justify-end items-center pb-12 pr-12">
+        <app-full-calendar 
+        [currentDevice]="currentDevice" 
+        [ngClass]="[
+            'w-full', 
+            'px-24 py-6', 
+            'content-center',
+            currentDevice() === 'desktop' ? 'max-h-calc-100-minus-100' : 'h-[100%]']"
+            ></app-full-calendar>
+        <div *ngIf="currentDevice() !== 'mobile'"
+            class="flex flex-row flex-grow w-full justify-end items-center pb-12 pr-12">
 
             <div class="flex flex-col p-2">
                 <p-calendar [(ngModel)]="rangeDates" selectionMode="range" />
