@@ -34,17 +34,20 @@ export class FullCalendarComponent {
   readonly subCalenders = this.teamupStore.getSubcalendars();
   readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
 
-  //headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth'
+  headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth'
 
-  headerBtnsRight = computed(() =>
-    this.currentDevice() === 'mobile'
-      ? 'timeGridDay'
-      : 'timeGridDay,timeGridWeek,dayGridMonth'
-  );
+  // headerBtnsRight = computed(() =>
+  //   this.currentDevice() === 'mobile'
+  //     ? 'timeGridDay'
+  //     : 'timeGridDay,timeGridWeek,dayGridMonth'
+  // );
 
   constructor() {
     // Log changes whenever `deviceType` signal updates
     effect(() => {
+      this.headerBtnsRight = this.currentDevice() === 'mobile'
+      ? 'timeGridDay'
+      : 'timeGridDay,timeGridWeek,dayGridMonth'
       console.log('Device type changed:', this.currentDevice());
     });
   }
@@ -56,7 +59,7 @@ export class FullCalendarComponent {
     headerToolbar: {
       left: 'prev today next',
       center: 'title',
-      right: this.headerBtnsRight(),
+      right: this.headerBtnsRight,
     },
 
     initialView: 'timeGridWeek',
