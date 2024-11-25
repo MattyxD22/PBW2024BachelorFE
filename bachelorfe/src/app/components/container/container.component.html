@@ -1,11 +1,11 @@
 <div class="flex w-full mx-auto width-class" [ngClass]="deviceTypeStore.isDesktop() ? 'flex-row' : 'flex-col'">
     <ng-container *ngIf="deviceTypeStore.isDesktop()">
         <div  class="h-full w-2/12 border-2 border-black-500">
-            <app-user-side-component></app-user-side-component>
+            <app-user-side-component [currentDevice]="deviceType"></app-user-side-component>
         </div>
     </ng-container>
     <ng-container *ngIf="!deviceTypeStore.isDesktop()">
-        <app-m-header></app-m-header>
+        <app-m-header [currentUser]="activeUser" [currentDevice]="deviceType"></app-m-header>
     </ng-container>
     
     <div class="h-full border-2 border-black-500" [ngClass]="deviceTypeStore.isDesktop() ? ' w-10/12':'w-full'">

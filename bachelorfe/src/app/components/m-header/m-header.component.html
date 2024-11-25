@@ -2,7 +2,7 @@
     <div class="flex flex-row w-full  relative">
         <div class="user-item flex flex-row p-6 hover:bg-surface-lightmodeHover">
             <p-button pRipple pButton label="mc" class="w-[65px] h-[65px] rounded-full border-2 border-black-500 mr-6" (onClick)="toggleMenuLeft()" />
-            <span class="text-2xl font-semibold text-black content-center"> {{ activeUser.name }}</span>
+            <span class="text-2xl font-semibold text-black content-center"> {{ currentUser().name }}</span>
         </div>
 
           <div class="mx-auto flex justify-center content-center">
@@ -11,8 +11,8 @@
     </div>
 
     <ng-container *ngIf="showLeftMenu">
-        <div (click)="closeMenu()" class="absolute border-r-2 border-black-500 w-[75%] bg-gray-500 left-0 top-0 h-full z10">
-            <app-user-side-component></app-user-side-component>
+        <div class="absolute border-r-2 border-black-500 w-[75%] bg-white left-0 top-0 h-full z-50">
+            <app-user-side-component (closeUserList)="closeMenu()" [currentDevice]="currentDevice"></app-user-side-component>
         </div>
     </ng-container>
     <ng-container *ngIf="showRightMenu">

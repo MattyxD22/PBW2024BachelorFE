@@ -52,6 +52,12 @@ export const TeamupStore = signalStore(
 
           teamupService.teamupFetchUsers().subscribe({
             next: (res: any) => {
+
+              res.map((user: userType) => {
+                user.color = generateHexColorFromName(user.name)
+              })
+              
+
               patchState(store, { users: res });
             },
             error: (error) => {
@@ -95,4 +101,29 @@ export const TeamupStore = signalStore(
       }
     }
   }),
+
+
 );
+
+function generateHexColorFromName(name: string): string {
+  // Ensure the name has content
+  if (!name) {
+      return '#000000'; // Default to black if name is empty
+  }
+
+  // Hash the name to a numeric value
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  // Convert hash to a hex color code
+  let color = '#';
+  for (let i = 0; i < 3; i++) {
+      const value = (hash >> (i * 8)) & 0xFF;
+      color += value.toString(16).padStart(2, '0'); // Ensure 2-digit hex
+  }
+
+  return color;
+}
+

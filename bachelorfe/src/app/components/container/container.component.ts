@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { MHeaderComponent } from "../m-header/m-header.component";
 import { DeviceTypeStore } from '../../stores/deviceTypes.store';
 import { DataSideComponent } from '../data-side/data-side.component';
+import { userType } from '../../types/user.type';
+import { ClickupStore } from '../../stores/clickup.store';
 
 @Component({
   selector: 'app-container',
@@ -16,14 +18,15 @@ import { DataSideComponent } from '../data-side/data-side.component';
 export class ContainerComponent implements AfterViewInit {
 
   protected readonly deviceTypeStore = inject(DeviceTypeStore)
+  protected readonly clickupStore = inject(ClickupStore)
   deviceType: any = this.deviceTypeStore.device
+
+  activeUser: any = this.clickupStore.activeMember;
 
   // Listen for window resize events
   @HostListener('window:resize', ['$event'])
   onResize(event?: Event) { 
-    const width = event ? (event.target as Window).innerWidth : this.fallBackDeviceType(); // Default width
-    console.log(width);
-    
+    const width = event ? (event.target as Window).innerWidth : this.fallBackDeviceType(); // Default width    
     this.deviceTypeStore.updateDeviceType(width);
   }
 

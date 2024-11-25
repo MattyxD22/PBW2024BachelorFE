@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, ChangeDetectionStrategy, Input, Signal, computed } from '@angular/core';
+import { Component, inject, signal, effect, ChangeDetectionStrategy, Input, Signal } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -34,22 +34,26 @@ export class FullCalendarComponent {
   readonly subCalenders = this.teamupStore.getSubcalendars();
   readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
 
-  headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth'
-
-  // headerBtnsRight = computed(() =>
-  //   this.currentDevice() === 'mobile'
-  //     ? 'timeGridDay'
-  //     : 'timeGridDay,timeGridWeek,dayGridMonth'
-  // );
+  headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
 
   constructor() {
-    // Log changes whenever `deviceType` signal updates
     effect(() => {
-      this.headerBtnsRight = this.currentDevice() === 'mobile'
-      ? 'timeGridDay'
-      : 'timeGridDay,timeGridWeek,dayGridMonth'
-      console.log('Device type changed:', this.currentDevice());
-    });
+      const newHeaderBtnsRight = this.currentDevice() === 'mobile'
+        ? ''
+        : 'timeGridDay,timeGridWeek,dayGridMonth';
+    
+      // Only update if the value has actually changed to avoid unnecessary updates
+      if (this.headerBtnsRight !== newHeaderBtnsRight) {
+        this.headerBtnsRight = newHeaderBtnsRight;
+        console.log('Device type changed:', this.currentDevice());
+        console.log(this.headerBtnsRight);
+        this.calendarOptions.set({ initialView: 'timeGridDay', headerToolbar: {
+          left: 'prev today next',
+          center: 'title',
+          right: this.headerBtnsRight,
+        }})
+      }
+    }, { allowSignalWrites: true });
   }
 
   // FullCalendar options

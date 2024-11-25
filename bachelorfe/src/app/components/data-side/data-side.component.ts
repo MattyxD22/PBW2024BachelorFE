@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit, Signal, ViewChild, ViewEncapsulation, effect, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, Signal, ViewEncapsulation, effect, inject } from '@angular/core';
 import { FullCalendarComponent } from '../full-calendar/full-calendar.component';
 import { GlobalStore } from '../../stores/global.store';
 import { ButtonModule } from 'primeng/button';
