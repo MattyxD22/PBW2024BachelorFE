@@ -51,24 +51,22 @@ test('does show selected user', async ({ page }) => {
     const userRows = sidebar.locator('.user-item');
     const userCount = await userRows.count();
     console.log(`Number of users: ${userCount}`);
-    expect(userCount).toBeGreaterThan(0); // Bekræft, at der er brugere
+    expect(userCount).toBeGreaterThan(0);
 
-    // Filtrer baseret på tekstindhold
     const user = userRows.filter({ hasText: 'mathias christensen' });
     console.log('User exists:', await user.count());
-    expect(await user.count()).toBeGreaterThan(0); // Brugeren skal eksistere
+    expect(await user.count()).toBeGreaterThan(0); 
 
-    // Hent navnet på brugeren
     const userName = await user.first().innerText();
-    console.log('User name clicked:', userName);  // Log navnet på brugeren
+    console.log('User name clicked:', userName); 
 
-    // Hent klasserne for knappen (user element)
+    // Henter klasserne for knappen (user element)
     const userClasses = await user.first().getAttribute('class');
-    const classList = userClasses?.split(' ') || []; // Split strengen til et array
+    const classList = userClasses?.split(' ') || []; // Splitter strengen til et array
 
     console.log('User classes:', classList);
 
-    // Tjek om den ønskede klasse eksisterer
+    // Tjekker om klassen eksisterer
     let hasBgSurfaceClass = false;
     for (const className of classList) {
         if (className.includes('bg-surface')) {
@@ -77,8 +75,7 @@ test('does show selected user', async ({ page }) => {
         }
     } 
 
-    // Forvent, at klassen findes før klik
-    expect(hasBgSurfaceClass).toBe(true); // Tjek om klassen blev fundet
+    expect(hasBgSurfaceClass).toBe(true);
 
     const userNameAfterClick = await user.first().innerText();
     console.log('User name after click:', userNameAfterClick);
@@ -105,7 +102,7 @@ test('Should switch between working days and sick/holidays', async({page}) => {
 })
 
 
-test('test search input and read tasks for the week', async ({ page }) => {
-    await page.goto('localhost:4200');
+// test('test search input and read tasks for the week', async ({ page }) => {
+//     await page.goto('localhost:4200');
 
-})
+// })
