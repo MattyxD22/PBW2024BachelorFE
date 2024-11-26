@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, ChangeDetectionStrategy, Input, Signal } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -9,18 +9,15 @@ import { ClickupStore } from '../../stores/clickup.store';
 import { GlobalStore } from '../../stores/global.store';
 import { clickupTaskType } from '../../types/clickup-task.type';
 import { teamupEventType } from '../../types/teamup-events.type';
-interface CalendarEvent {
-  title: string;
-  start: string;
-  end: string;
-}
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-full-calendar',
   standalone: true,
-  imports: [FullCalendarModule],
+  imports: [FullCalendarModule, CommonModule],
   templateUrl: './full-calendar.component.html',
   styleUrls: ['./full-calendar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FullCalendarComponent {
   calendarVisible = signal(true);
@@ -30,11 +27,34 @@ export class FullCalendarComponent {
   teamupStore = inject(TeamupStore);
   clickupStore = inject(ClickupStore);
   globalStore = inject(GlobalStore);
+  @Input() currentDevice!: Signal<string>;
 
   // Get events from the store
   readonly events = this.teamupStore.getUserCalendar;
   readonly subCalenders = this.teamupStore.getSubcalendars();
   readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
+
+  headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
+
+  constructor() {
+    effect(() => {
+      const newHeaderBtnsRight = this.currentDevice() === 'mobile'
+        ? ''
+        : 'timeGridDay,timeGridWeek,dayGridMonth';
+    
+      // Only update if the value has actually changed to avoid unnecessary updates
+      if (this.headerBtnsRight !== newHeaderBtnsRight) {
+        this.headerBtnsRight = newHeaderBtnsRight;
+        console.log('Device type changed:', this.currentDevice());
+        console.log(this.headerBtnsRight);
+        this.calendarOptions.set({ initialView: 'timeGridDay', headerToolbar: {
+          left: 'prev today next',
+          center: 'title',
+          right: this.headerBtnsRight,
+        }})
+      }
+    }, { allowSignalWrites: true });
+  }
 
   // FullCalendar options
   calendarOptions = signal<CalendarOptions>({
@@ -43,9 +63,9 @@ export class FullCalendarComponent {
     headerToolbar: {
       left: 'prev today next',
       center: 'title',
-      right: 'timeGridDay,timeGridWeek,dayGridMonth',
+      right: this.headerBtnsRight,
     },
-    
+
     initialView: 'timeGridWeek',
     weekends: true,
     editable: false,
@@ -71,32 +91,32 @@ export class FullCalendarComponent {
         slotDuration: '00:30:00',
       },
     },
-    
+
     events: [], // Initialize with an empty array
     eventContent: (arg) => {
-      
+
       const { event } = arg;
       const { extendedProps } = event;
-    
+
       // Set default title
       const title = event.title || 'Event';
       const taskDetails = extendedProps['taskDetails'];
-    
+
       // Handle cases where taskDetails is null or undefined
       if (!taskDetails || taskDetails.length === 0) {
         return { html: `<div><strong>${title}</strong></div>` };
       }
-    
+
       // Render multiple task details if available
       const taskContent = taskDetails
-        .map((task:any) => `
+        .map((task: any) => `
           <div class="task-detail border-b px-1 py-1 bg-surface-calendarItem mx-1 my-1 rounded shadow-2xl">
             <div><strong>${task.title}</strong></div>
             <div>${task.duration.hours}h ${task.duration.minutes}m</div>
           </div>
         `)
         .join('');
-    
+
       return {
         html: `
           <div class="">
@@ -115,9 +135,9 @@ export class FullCalendarComponent {
 
       const activeMember = this.clickupStore.activeMember()
       if (activeMember) {
-          this.teamupStore.setUserEvents(activeMember.email, startDate, endDate);
-      } 
-  },
+        this.teamupStore.setUserEvents(activeMember.email, startDate, endDate);
+      }
+    },
   });
 
   visArbejdstimer() {
@@ -180,18 +200,18 @@ export class FullCalendarComponent {
     events.forEach((event: teamupEventType) => {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
         const eventStartDate = new Date(event.startDate).toDateString(); // Gets a string like "Fri Nov 01 2024"
-    
+
         // Find all corresponding tasks based on the logged date
         const correspondingTasks = clickupTasks.filter((task: clickupTaskType) => {
-          
+
           const taskDate = new Date(parseInt(task.dateLogged));
-          
+
           const taskStartDate = taskDate.toDateString();
           console.log(taskStartDate, eventStartDate);
           return taskStartDate === eventStartDate;
         });
-        
-    
+
+
         transformedEvents.push({
           id: event.id,
           title: ' ', // maybe show type of calendar?
@@ -202,16 +222,16 @@ export class FullCalendarComponent {
             email: event.custom?.email || '',
             taskDetails: correspondingTasks.length > 0
               ? correspondingTasks.map((task: any) => ({
-                  title: task.taskTitle,
-                  dateLogged: task.dateLogged,
-                  loggedBy: task.loggedBy,
-                  duration: task.duration, // or any other property you want to include
-                }))
+                title: task.taskTitle,
+                dateLogged: task.dateLogged,
+                loggedBy: task.loggedBy,
+                duration: task.duration, // or any other property you want to include
+              }))
               : null, // Set to null if no corresponding tasks are found
           },
         });
       }
-    });    
+    });
     return transformedEvents;
   }
 }

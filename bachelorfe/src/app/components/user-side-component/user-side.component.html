@@ -13,6 +13,16 @@
                 <i class="pi pi-search text-white pr-2"></i> 
             </div>
         </div>
+
+        @if (currentDevice() === 'mobile' || currentDevice() === 'tablet') {
+            <div class="ms-5">
+              <button (click)="close()">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          }
+
+        
     </div>
 
     <div class="flex-grow border-2 border-black-500 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-surface-PrimaryColor scrollbar-track-gray-200">

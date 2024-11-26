@@ -1,21 +1,20 @@
-import { Component, inject } from '@angular/core';
-import { UserListComponent } from "../user-list/user-list.component";
+import { Component, effect, inject, Input, Signal } from '@angular/core';
 import { ButtonModule } from "primeng/button"
 import { CommonModule } from '@angular/common';
 import { UserSideComponent } from "../user-side-component/user-side.component";
 import { ClickupStore } from '../../stores/clickup.store';
+import { userType } from '../../types/user.type';
 
 @Component({
   selector: 'app-m-header',
   standalone: true,
-  imports: [UserListComponent, ButtonModule, CommonModule, UserSideComponent],
+  imports: [ButtonModule, CommonModule, UserSideComponent],
   templateUrl: './m-header.component.html',
   styleUrl: './m-header.component.scss'
 })
 export class MHeaderComponent {
-  protected readonly clickupStore = inject(ClickupStore)
-
-  activeUser = this.clickupStore.activeMember()
+  @Input() currentDevice!: Signal<string>
+  @Input() currentUser!: Signal<userType>;
 
   showLeftMenu = false;
   showRightMenu = false;
