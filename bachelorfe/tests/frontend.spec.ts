@@ -16,31 +16,45 @@ test('has sidebar component', async ({ page }) => {
     await expect(userRows.count()).resolves.toBeGreaterThan(0)
 })
 
-test('test search input', async ({ page }) => {
+test('test search input ensures exact user match', async ({ page }) => {
     await page.goto('localhost:4200');
 
-    const sidebar = page.locator('app-user-side-component')
-    const userRows = sidebar.locator('.user-item')
-    const searchInput = sidebar.locator('#searchField')
+    const sidebar = page.locator('app-user-side-component');
+    const userRows = sidebar.locator('.user-item');
+    const searchInput = sidebar.locator('#searchField');
 
-    await expect(searchInput).toBeVisible();
-
-    searchInput.fill('mathias christensen');
-    await expect(userRows.count()).resolves.toBeGreaterThan(0)
-    await expect(searchInput).toHaveValue('mathias christensen')
-
-    const filteredUser = await userRows.count();
-    console.log(`Filtered user count: ${filteredUser}`);
-
-    for (let i = 0; i < filteredUser; i++) {
+    // Log alle brugere
+    const initialUserCount = await userRows.count();
+    console.log(`Initial user count: ${initialUserCount}`);
+    for (let i = 0; i < initialUserCount; i++) {
         const userText = await userRows.nth(i).innerText();
-        console.log(`User ${i + 1}: ${userText}`);
+        console.log(`Initial User ${i + 1}: ${userText}`);
     }
 
-    // ideally it should only have a single row in the side-bar component with the searched user
-    // but whenever i run the test, the searched user is shown twice, causing the test to fail
-    // now it shows both users in the console log. 
-})
+    await expect(searchInput).toBeVisible();
+    await searchInput.fill('mathias christensen');
+
+    // waitForSelector til at finde matchende brugere
+    await page.waitForSelector('.user-item:has-text("mathias christensen")');
+
+    // Filtrerer brugere som matcher
+    const filteredUsers = userRows.filter({ hasText: 'mathias christensen' });
+    const filteredUserCount = await filteredUsers.count();
+    console.log(`Filtered user count (exact match): ${filteredUserCount}`);
+
+    for (let i = 0; i < filteredUserCount; i++) {
+        const userText = await filteredUsers.nth(i).innerText();
+        console.log(`Filtered User ${i + 1}: ${userText}`);
+    }
+
+    // Verificer resultater
+    const filteredUserName = (await filteredUsers.first().innerText()).replace(/^MC\s/, '').toLowerCase().trim(); // fjerner mc i 'mc mathias christensen'
+    console.log(`Final matched user: ${filteredUserName}`);
+    expect(filteredUserCount).toBe(1);
+    expect(filteredUserName).toBe('mathias christensen');
+});
+
+
 
 // TODO WIP
 test('does show selected user', async ({ page }) => {
@@ -102,7 +116,7 @@ test('Should switch between working days and sick/holidays', async({page}) => {
 })
 
 
-// test('test search input and read tasks for the week', async ({ page }) => {
-//     await page.goto('localhost:4200');
+test('test search input and read tasks for the day', async ({ page }) => {
+    await page.goto('localhost:4200');
 
-// })
+})
