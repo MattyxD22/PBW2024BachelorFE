@@ -14,6 +14,7 @@ import { DataSideComponent } from '../data-side/data-side.component';
 import { userType } from '../../types/user.type';
 import { ClickupStore } from '../../stores/clickup.store';
 import { TeamupStore } from '../../stores/teamup.store';
+import { GlobalStore } from '../../stores/global.store';
 
 @Component({
   selector: 'app-container',
@@ -32,6 +33,7 @@ export class ContainerComponent implements AfterViewInit {
   protected readonly deviceTypeStore = inject(DeviceTypeStore);
   protected readonly clickupStore = inject(ClickupStore);
   protected readonly teamupStore = inject(TeamupStore);
+  protected readonly globalStore = inject(GlobalStore);
   deviceType: any = this.deviceTypeStore.device;
 
   currentUser: any = this.clickupStore.activeMember;
@@ -73,5 +75,17 @@ export class ContainerComponent implements AfterViewInit {
     } else {
       return 1280;
     }
+  }
+
+  setShowWorkDays() {
+    console.log('show working days emitted');
+
+    this.globalStore.setShowNonWorkingDays(false);
+  }
+
+  setShowSickDays() {
+    console.log('show sick days emitted');
+
+    this.globalStore.setShowNonWorkingDays(true);
   }
 }

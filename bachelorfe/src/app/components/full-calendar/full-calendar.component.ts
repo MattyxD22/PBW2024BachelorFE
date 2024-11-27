@@ -6,9 +6,10 @@ import {
   ChangeDetectionStrategy,
   Input,
   Signal,
+  ViewChild,
 } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions } from '@fullcalendar/core';
+import { CalendarOptions, Calendar } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -37,6 +38,9 @@ export class FullCalendarComponent {
   globalStore = inject(GlobalStore);
   @Input() currentDevice!: Signal<string>;
 
+  //breaking the setup a little bit here, but this is to access the calendar directly
+  @ViewChild('calendar') calendarComponent!: { getApi: () => Calendar };
+
   // Get events from the store
   readonly events = this.teamupStore.getUserCalendar;
   readonly subCalenders = this.teamupStore.getSubcalendars();
@@ -48,27 +52,21 @@ export class FullCalendarComponent {
   constructor() {
     effect(
       () => {
-        const newHeaderBtnsRight =
-          this.currentDevice() === 'mobile'
-            ? ''
-            : 'timeGridDay,timeGridWeek,dayGridMonth';
-        const calendarView =
-          this.currentDevice() === 'mobile' ? 'timeGridDay' : '';
-
-        // Only update if the value has actually changed to avoid unnecessary updates
-        if (this.headerBtnsRight !== newHeaderBtnsRight) {
-          console.log('should update....');
-
-          this.headerBtnsRight = newHeaderBtnsRight;
-          this.calendarOptions.set({
-            initialView: calendarView,
-            headerToolbar: {
-              left: 'prev today next',
-              center: 'title',
-              right: this.headerBtnsRight,
-            },
-          });
+        if (this.currentDevice() === 'mobile') {
+          this.headerBtnsRight = '';
+          this.calendarComponent.getApi().changeView('timeGridDay');
+        } else {
+          this.calendarComponent.getApi().changeView('timeGridWeek');
+          this.headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
         }
+
+        this.calendarOptions.set({
+          headerToolbar: {
+            left: 'prev today next',
+            center: 'title',
+            right: this.headerBtnsRight,
+          },
+        });
       },
       { allowSignalWrites: true }
     );
@@ -84,7 +82,7 @@ export class FullCalendarComponent {
       right: this.headerBtnsRight,
     },
 
-    initialView: this.calendarView,
+    initialView: 'timeGridWeek',
     weekends: true,
     editable: false,
     selectable: false,

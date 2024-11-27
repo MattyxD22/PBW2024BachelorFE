@@ -2,24 +2,25 @@
   class="flex w-full mx-auto width-class"
   [ngClass]="deviceTypeStore.isDesktop() ? 'flex-row' : 'flex-col'"
 >
-  <ng-container *ngIf="deviceTypeStore.isDesktop()">
-    <div class="h-full w-2/12 border-2 border-black-500">
-      <app-user-side-component
-        [searchString]="searchString"
-        [userList]="userList"
-        [currentUser]="currentUser"
-        [currentDevice]="deviceType"
-      ></app-user-side-component>
-    </div>
-  </ng-container>
-  <ng-container *ngIf="!deviceTypeStore.isDesktop()">
-    <app-m-header
+  @if(deviceTypeStore.isDesktop()){
+  <div class="h-full w-2/12 border-2 border-black-500">
+    <app-user-side-component
       [searchString]="searchString"
       [userList]="userList"
       [currentUser]="currentUser"
       [currentDevice]="deviceType"
-    ></app-m-header>
-  </ng-container>
+    ></app-user-side-component>
+  </div>
+  } @if(!deviceTypeStore.isDesktop()){
+  <app-m-header
+    [searchString]="searchString"
+    [userList]="userList"
+    [currentUser]="currentUser"
+    [currentDevice]="deviceType"
+    (showWorkingdays)="setShowWorkDays()"
+    (showSickDays)="setShowSickDays()"
+  ></app-m-header>
+  }
 
   <div
     class="h-full border-2 border-black-500"

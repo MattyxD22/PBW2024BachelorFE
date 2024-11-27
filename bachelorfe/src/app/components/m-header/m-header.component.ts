@@ -1,8 +1,15 @@
-import { Component, effect, inject, Input, Signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  Signal,
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { UserSideComponent } from '../user-side-component/user-side.component';
-import { ClickupStore } from '../../stores/clickup.store';
 import { userType } from '../../types/user.type';
 import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
@@ -13,11 +20,15 @@ import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
   templateUrl: './m-header.component.html',
   styleUrl: './m-header.component.scss',
 })
+// M is for "mobile"
 export class MHeaderComponent {
   @Input() currentDevice!: Signal<string>;
   @Input() currentUser!: Signal<userType>;
   @Input() userList!: Signal<userType[]>;
   @Input() searchString!: Signal<string>;
+
+  @Output() showWorkingdays = new EventEmitter();
+  @Output() showSickDays = new EventEmitter();
 
   showLeftMenu = false;
   showRightMenu = false;
@@ -32,7 +43,16 @@ export class MHeaderComponent {
     this.showRightMenu = !this.showRightMenu;
   }
 
-  closeMenu() {
+  closeMenu(type?: number) {
+    if (type === 1) {
+      // emit event for "arbejdsdage / Working days"
+      this.showWorkingdays.emit();
+    }
+    if (type === 2) {
+      // emit event for "fridage / Sick days"
+      this.showSickDays.emit();
+    }
+
     this.showRightMenu = false;
     this.showLeftMenu = false;
   }

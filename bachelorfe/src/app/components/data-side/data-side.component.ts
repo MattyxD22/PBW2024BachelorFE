@@ -4,10 +4,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
+  Output,
   Signal,
   ViewEncapsulation,
-  effect,
   inject,
+  EventEmitter,
 } from '@angular/core';
 import { FullCalendarComponent } from '../full-calendar/full-calendar.component';
 import { GlobalStore } from '../../stores/global.store';
@@ -48,6 +49,7 @@ export class DataSideComponent implements AfterViewInit {
   @Input() currentDevice!: Signal<string>;
   @Input() currentUser!: Signal<userType>;
   @Input() userList!: Signal<userType[]>;
+
 
   ngAfterViewInit(): void {}
   constructor() {}
