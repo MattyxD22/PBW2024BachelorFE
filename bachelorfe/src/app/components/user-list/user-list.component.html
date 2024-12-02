@@ -7,7 +7,7 @@
   *ngFor="let user of teamupStore.userSearchString() ? teamupStore.getSearchedUsers() : teamupStore.getUsers()"
   class="user-item flex flex-row py-4"
 >
-  <app-user-avatar [userColor]="user.color" [userName]="user.name"></app-user-avatar>
+  <app-user-avatar [userName]="user.name"></app-user-avatar>
   <span class="text-2xl font-semibold text-black content-center">{{
     user.name
   }}</span>
