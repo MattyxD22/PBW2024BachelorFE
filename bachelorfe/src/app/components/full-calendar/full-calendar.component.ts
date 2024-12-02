@@ -1,6 +1,15 @@
-import { Component, inject, signal, effect, ChangeDetectionStrategy, Input, Signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  effect,
+  ChangeDetectionStrategy,
+  Input,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import { CalendarOptions } from '@fullcalendar/core';
+import { CalendarOptions, Calendar } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -29,31 +38,38 @@ export class FullCalendarComponent {
   globalStore = inject(GlobalStore);
   @Input() currentDevice!: Signal<string>;
 
+  //breaking the setup a little bit here, but this is to access the calendar directly
+  @ViewChild('calendar') calendarComponent!: { getApi: () => Calendar };
+
   // Get events from the store
   readonly events = this.teamupStore.getUserCalendar;
   readonly subCalenders = this.teamupStore.getSubcalendars();
   readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
 
   headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
+  calendarView = 'timeGridWeek';
 
   constructor() {
-    effect(() => {
-      const newHeaderBtnsRight = this.currentDevice() === 'mobile'
-        ? ''
-        : 'timeGridDay,timeGridWeek,dayGridMonth';
-    
-      // Only update if the value has actually changed to avoid unnecessary updates
-      if (this.headerBtnsRight !== newHeaderBtnsRight) {
-        this.headerBtnsRight = newHeaderBtnsRight;
-        console.log('Device type changed:', this.currentDevice());
-        console.log(this.headerBtnsRight);
-        this.calendarOptions.set({ initialView: 'timeGridDay', headerToolbar: {
-          left: 'prev today next',
-          center: 'title',
-          right: this.headerBtnsRight,
-        }})
-      }
-    }, { allowSignalWrites: true });
+    effect(
+      () => {
+        if (this.currentDevice() === 'mobile') {
+          this.headerBtnsRight = '';
+          this.calendarComponent.getApi().changeView('timeGridDay');
+        } else {
+          this.calendarComponent.getApi().changeView('timeGridWeek');
+          this.headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
+        }
+
+        this.calendarOptions.set({
+          headerToolbar: {
+            left: 'prev today next',
+            center: 'title',
+            right: this.headerBtnsRight,
+          },
+        });
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   // FullCalendar options
@@ -94,7 +110,6 @@ export class FullCalendarComponent {
 
     events: [], // Initialize with an empty array
     eventContent: (arg) => {
-
       const { event } = arg;
       const { extendedProps } = event;
 
@@ -109,12 +124,14 @@ export class FullCalendarComponent {
 
       // Render multiple task details if available
       const taskContent = taskDetails
-        .map((task: any) => `
+        .map(
+          (task: any) => `
           <div class="task-detail border-b px-1 py-1 bg-surface-calendarItem mx-1 my-1 rounded shadow-2xl">
             <div><strong>${task.title}</strong></div>
             <div>${task.duration.hours}h ${task.duration.minutes}m</div>
           </div>
-        `)
+        `
+        )
         .join('');
 
       return {
@@ -131,9 +148,9 @@ export class FullCalendarComponent {
       const endDate = arg.end.toISOString().split('T')[0];
 
       // update the store, with the start and end date of the currently visible week
-      this.globalStore.setShowingWeek(startDate, endDate)
+      this.globalStore.setShowingWeek(startDate, endDate);
 
-      const activeMember = this.clickupStore.activeMember()
+      const activeMember = this.clickupStore.activeMember();
       if (activeMember) {
         this.teamupStore.setUserEvents(activeMember.email, startDate, endDate);
       }
@@ -202,15 +219,14 @@ export class FullCalendarComponent {
         const eventStartDate = new Date(event.startDate).toDateString(); // Gets a string like "Fri Nov 01 2024"
 
         // Find all corresponding tasks based on the logged date
-        const correspondingTasks = clickupTasks.filter((task: clickupTaskType) => {
+        const correspondingTasks = clickupTasks.filter(
+          (task: clickupTaskType) => {
+            const taskDate = new Date(parseInt(task.dateLogged));
 
-          const taskDate = new Date(parseInt(task.dateLogged));
-
-          const taskStartDate = taskDate.toDateString();
-          console.log(taskStartDate, eventStartDate);
-          return taskStartDate === eventStartDate;
-        });
-
+            const taskStartDate = taskDate.toDateString();
+            return taskStartDate === eventStartDate;
+          }
+        );
 
         transformedEvents.push({
           id: event.id,
@@ -220,14 +236,15 @@ export class FullCalendarComponent {
           allDay: event.all_day || false,
           extendedProps: {
             email: event.custom?.email || '',
-            taskDetails: correspondingTasks.length > 0
-              ? correspondingTasks.map((task: any) => ({
-                title: task.taskTitle,
-                dateLogged: task.dateLogged,
-                loggedBy: task.loggedBy,
-                duration: task.duration, // or any other property you want to include
-              }))
-              : null, // Set to null if no corresponding tasks are found
+            taskDetails:
+              correspondingTasks.length > 0
+                ? correspondingTasks.map((task: any) => ({
+                    title: task.taskTitle,
+                    dateLogged: task.dateLogged,
+                    loggedBy: task.loggedBy,
+                    duration: task.duration, // or any other property you want to include
+                  }))
+                : null, // Set to null if no corresponding tasks are found
           },
         });
       }

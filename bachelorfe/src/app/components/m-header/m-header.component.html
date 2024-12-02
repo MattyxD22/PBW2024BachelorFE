@@ -1,23 +1,70 @@
 <div class="p-4 border-2 border-green-500 flex flex-row">
-    <div class="flex flex-row w-full  relative">
-        <div class="user-item flex flex-row p-6 hover:bg-surface-lightmodeHover">
-            <p-button pRipple pButton label="mc" class="w-[65px] h-[65px] rounded-full border-2 border-black-500 mr-6" (onClick)="toggleMenuLeft()" />
-            <span class="text-2xl font-semibold text-black content-center"> {{ currentUser().name }}</span>
-        </div>
+  <div class="flex flex-row w-full relative">
+    <div class="user-item flex flex-row p-6 w-full" (click)="toggleMenuLeft()">
+      @if(currentUser().name !== ''){
 
-          <div class="mx-auto flex justify-center content-center">
-            <p-button class="my-auto p-primary" pRipple pButton icon="pi pi-bars" (onClick)="toggleMenuRight()" />
-          </div>
+      <app-user-avatar
+        [userColor]="currentUser().color"
+        [userName]="currentUser().name"
+      ></app-user-avatar>
+      } @else {
+      <p-button
+        icon="pi pi-user"
+        pButton
+        class="w-16 h-16 rounded-full border-2 border-black-500 mr-6"
+      />
+      }
+
+      <span class="text-2xl font-semibold text-black content-center">
+        {{ currentUser().name }}</span
+      >
     </div>
 
-    <ng-container *ngIf="showLeftMenu">
-        <div class="absolute border-r-2 border-black-500 w-[75%] bg-white left-0 top-0 h-full z-50">
-            <app-user-side-component (closeUserList)="closeMenu()" [currentDevice]="currentDevice"></app-user-side-component>
-        </div>
-    </ng-container>
-    <ng-container *ngIf="showRightMenu">
-        <div (click)="closeMenu()" class="absolute border-r-2 border-black-500 w-[75%] bg-gray-500 -right-2 top-0 h-full z10"></div>
-    </ng-container>
-    
+    <div class="mx-auto flex justify-center content-center">
+      <p-button
+        class="my-auto p-primary"
+        pRipple
+        pButton
+        icon="pi pi-bars"
+        (onClick)="toggleMenuRight()"
+      />
+    </div>
+  </div>
 
+  @if(showLeftMenu){
+  <div
+    class="absolute border-2 border-l-0 border-black-500 w-[75%] bg-white left-0 top-0 h-full z-50"
+  >
+    <app-user-side-component
+      [currentUser]="currentUser"
+      [userList]="userList"
+      [searchString]="searchString"
+      (closeUserList)="closeMenu()"
+      [currentDevice]="currentDevice"
+    ></app-user-side-component>
+  </div>
+  } @if(showRightMenu){
+  <div
+    class="absolute border-2 border-r-0 border-black-500 w-[75%] bg-white -right-2 top-0 h-full z-50 flex flex-col content-center"
+  >
+    <div class="flex flex-row mx-auto py-4">
+      <p-button
+        pButton
+        (onClick)="closeMenu(1)"
+        severity="primary"
+        label="Arbejdstimer"
+        class="w-36 justify-center"
+      ></p-button>
+    </div>
+    <div class="flex flex-row mx-auto py-4">
+      <p-button
+        pButton
+        (onClick)="closeMenu(2)"
+        severity="primary"
+        label="Fridage"
+        class="w-36 justify-center"
+      ></p-button>
+    </div>
+  </div>
+  }
 </div>
