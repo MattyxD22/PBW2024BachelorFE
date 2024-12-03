@@ -7,6 +7,7 @@ import {
   Input,
   Signal,
   ViewChild,
+  WritableSignal
 } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, Calendar } from '@fullcalendar/core';
@@ -30,7 +31,14 @@ import { CommonModule } from '@angular/common';
 })
 export class FullCalendarComponent {
   calendarVisible = signal(true);
-
+  tooltipVisible: WritableSignal<boolean> = signal(false);
+  tooltipPosition: WritableSignal<{ top: number; left: number }> = signal({
+    top: 0,
+    left: 0,
+  });
+  tooltipData: any = null;
+  private hideTooltipTimeout: any; // Timeout reference
+  
   todaysDate = new Date();
 
   teamupStore = inject(TeamupStore);
@@ -90,6 +98,8 @@ export class FullCalendarComponent {
     dayMaxEvents: true,
     expandRows: true,
     nowIndicator: true,
+    eventMouseEnter: this.onEventMouseEnter.bind(this),
+    eventMouseLeave: this.onEventMouseLeave.bind(this),
     firstDay: 1,
     eventBackgroundColor: 'PrimaryColor',
     businessHours: {
@@ -157,16 +167,6 @@ export class FullCalendarComponent {
     },
   });
 
-  visArbejdstimer() {
-    const currentEvents = this.events();
-    this.updateCalendarEvents(currentEvents, false);
-  }
-
-  visFridage() {
-    const currentEvents = this.events();
-    this.updateCalendarEvents(currentEvents, true);
-  }
-
   get options() {
     return this.calendarOptions();
   }
@@ -200,22 +200,9 @@ export class FullCalendarComponent {
   private transformEvents(events: any[], showSickDays: boolean): any[] {
     const transformedEvents: any[] = [];
 
-    let allowedCalendarIds = this.teamupStore
-      .subcalendars()
-      .filter((item: any) => item.name === 'Office' || item.name === 'Remote')
-      .map((calendar: any) => calendar.id); // Extract only the ids
-
-    if (showSickDays) {
-      allowedCalendarIds = this.teamupStore
-        .subcalendars()
-        .filter((item: any) => item.name === 'Sick' || item.name === 'Holiday')
-        .map((calendar: any) => calendar.id); // Extract only the ids
-    }
-
     const clickupTasks = this.clickupStore.tasks();
 
     events.forEach((event: teamupEventType) => {
-      if (allowedCalendarIds.includes(event.subcalenderId)) {
         const eventStartDate = new Date(event.startDate).toDateString(); // Gets a string like "Fri Nov 01 2024"
 
         // Find all corresponding tasks based on the logged date
@@ -248,7 +235,50 @@ export class FullCalendarComponent {
           },
         });
       }
-    });
+    );
     return transformedEvents;
   }
+  onEventMouseEnter(mouseEnterInfo: any){
+    console.log('mouse entered event');
+    const jsEvent = mouseEnterInfo.jsEvent;
+
+    if (this.hideTooltipTimeout) {
+      clearTimeout(this.hideTooltipTimeout); // Cancel any pending hide
+    }
+
+    console.log(jsEvent.target);
+
+    const boundingRect = jsEvent.target.getBoundingClientRect();
+
+    this.tooltipData = {
+      name: mouseEnterInfo.event.name,
+      email: mouseEnterInfo.event.email,
+      subcalendar: mouseEnterInfo.event.subcalender,
+      date: mouseEnterInfo.event.date
+    };
+
+    //this.tooltipPosition = {
+    //  top: jsEvent.target.getBoundingClientRect().top + 10,
+    //  left: jsEvent.target.getBoundingClientRect().left + 10,
+    //};
+
+    this.tooltipPosition.set({
+      top: boundingRect.top + window.scrollY - 50, // Adjust for scrolling
+      left: boundingRect.left + window.scrollX + 10, // Adjust for scrolling
+    });
+
+
+    this.tooltipVisible.set(true);
+
+  }
+
+  onEventMouseLeave() {
+    console.log('mouse left event');
+    this.hideTooltipTimeout = setTimeout(() => {
+      this.tooltipData = null;
+      this.tooltipVisible.set(false);
+    }, 200); // Small delay to allow for smoother transitions
+  }
+
+  
 }
