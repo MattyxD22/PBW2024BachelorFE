@@ -7,6 +7,7 @@ import {
   Input,
   Signal,
   ViewChild,
+  WritableSignal
 } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, Calendar } from '@fullcalendar/core';
@@ -30,7 +31,14 @@ import { CommonModule } from '@angular/common';
 })
 export class FullCalendarComponent {
   calendarVisible = signal(true);
-
+  tooltipVisible: WritableSignal<boolean> = signal(false);
+  tooltipPosition: WritableSignal<{ top: number; left: number }> = signal({
+    top: 0,
+    left: 0,
+  });
+  tooltipData: any = null;
+  private hideTooltipTimeout: any; // Timeout reference
+  
   todaysDate = new Date();
 
   teamupStore = inject(TeamupStore);
@@ -89,6 +97,8 @@ export class FullCalendarComponent {
     dayMaxEvents: true,
     expandRows: true,
     nowIndicator: true,
+    eventMouseEnter: this.onEventMouseEnter.bind(this),
+    eventMouseLeave: this.onEventMouseLeave.bind(this),
     firstDay: 1,
     eventBackgroundColor: 'PrimaryColor',
     eventOverlap: true, // Allow overlapping events
@@ -149,16 +159,6 @@ export class FullCalendarComponent {
     },
   });
 
-  visArbejdstimer() {
-    const currentEvents = this.events();
-    this.updateCalendarEvents(currentEvents, false);
-  }
-
-  visFridage() {
-    const currentEvents = this.events();
-    this.updateCalendarEvents(currentEvents, true);
-  }
-
   get options() {
     return this.calendarOptions();
   }
@@ -194,7 +194,8 @@ export class FullCalendarComponent {
     showSickDays: boolean
   ): any[] {
     const transformedEvents: any[] = [];
-
+ 
+    // Define allowed calendar IDs
     // Flatten the events object into a single array
     const flattenedEvents = Object.values(events).flat();
 
@@ -217,36 +218,96 @@ export class FullCalendarComponent {
       .map((calendar: any) => calendar.id);
 
     const clickupTasks = this.clickupStore.tasks();
-
+ 
+    // Define colors for sub-calendar IDs
+    const subCalendarColors: {
+      [key: string]: { background: string;};
+    } = {
+      '13752528': { background: 'rgb(71, 112, 216)',}, // Office
+      '13752529': { background: 'rgb(79, 181, 161)',}, // Holiday
+      '13753382': { background: 'rgb(160, 26, 26)',}, // Remote
+      '13753384': { background: 'rgb(119, 66, 169)'}, // Sick
+    };
+ 
     flattenedEvents.forEach((event: teamupEventType) => {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
-        const eventStartDate = new Date(event.startDate).toDateString();
-
+        const eventStartDate = new Date(event.startDate).toDateString(); // Format start date
+ 
+        // Find tasks corresponding to the event's date
         const correspondingTasks = clickupTasks.filter(
-          (task: clickupTaskType) =>
-            new Date(parseInt(task.dateLogged)).toDateString() ===
-            eventStartDate
+          (task: clickupTaskType) => {
+            const taskDate = new Date(parseInt(task.dateLogged));
+            return taskDate.toDateString() === eventStartDate;
+          }
         );
-
+ 
+        // Get colors for the sub-calendar ID
+        const colors = subCalendarColors[event.subcalenderId] || {
+          background: '#d3d3d3', 
+        };
+ 
         transformedEvents.push({
           id: `${event.id}-${eventStartDate}`, // Ensure unique ID
           title: event.title || 'Event', // Fallback title
           start: event.startDate,
           end: event.endDate,
           allDay: event.all_day || false,
+          backgroundColor: colors.background, // Set background color
           extendedProps: {
             email: event.custom?.email || '',
-            taskDetails: correspondingTasks.map((task: any) => ({
-              title: task.taskTitle,
-              dateLogged: task.dateLogged,
-              loggedBy: task.loggedBy,
-              duration: task.duration,
-            })),
+            subCalendarId: event.subcalenderId,
+            taskDetails:
+              correspondingTasks.length > 0
+                ? correspondingTasks.map((task: any) => ({
+                    title: task.taskTitle,
+                    dateLogged: task.dateLogged,
+                    loggedBy: task.loggedBy,
+                    duration: task.duration,
+                  }))
+                : null,
           },
         });
       }
     });
+ 
 
     return transformedEvents;
   }
+
+  onEventMouseEnter(mouseEnterInfo: any){
+    const jsEvent = mouseEnterInfo.jsEvent;
+
+    if (this.hideTooltipTimeout) {
+      clearTimeout(this.hideTooltipTimeout); // Cancel any pending hide
+    }
+
+    console.log(jsEvent.target);
+
+    const boundingRect = jsEvent.target.getBoundingClientRect();
+
+    this.tooltipData = {
+      name: mouseEnterInfo.event.name,
+      email: mouseEnterInfo.event.email,
+      subcalendar: mouseEnterInfo.event.subcalender,
+      date: mouseEnterInfo.event.date
+    };
+
+    this.tooltipPosition.set({
+      top: boundingRect.top + window.scrollY - 50,
+      left: boundingRect.left + window.scrollX + 10, 
+    });
+
+
+    this.tooltipVisible.set(true);
+
+  }
+
+  onEventMouseLeave() {
+    this.hideTooltipTimeout = setTimeout(() => {
+      this.tooltipData = null;
+      this.tooltipVisible.set(false);
+    }, 200); // Lille delay, som får det til at virke
+  }
+
+  
 }
