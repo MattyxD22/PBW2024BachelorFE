@@ -36,7 +36,7 @@ export class ContainerComponent implements AfterViewInit {
   protected readonly globalStore = inject(GlobalStore);
   deviceType: any = this.deviceTypeStore.device;
 
-  currentUser: any = this.clickupStore.activeMember;
+  selectedUsers: any = this.clickupStore.activeMembers;
   userList = this.teamupStore.users;
   searchString = this.teamupStore.userSearchString;
 

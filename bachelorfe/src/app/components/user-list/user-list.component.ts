@@ -28,7 +28,7 @@ export class UserListComponent {
   protected readonly globalStore = inject(GlobalStore);
 
   @Input() userList!: Signal<userType[]>;
-  @Input() currentUser!: Signal<userType>;
+  @Input() selectedUsers!: Signal<userType>;
   @Input() searchString!: Signal<string>;
 
   @Output() close = new EventEmitter();
@@ -41,7 +41,6 @@ export class UserListComponent {
   }
 
   getUserCalendar(email: string) {
-    // store retrieved values for readability
     const startOfWeek = this.globalStore.showingWeek().startOfWeek;
     const endOfWeek = this.globalStore.showingWeek().endOfWeek;
 
@@ -50,14 +49,18 @@ export class UserListComponent {
     this.clickupStore.setTasks(email);
     this.globalStore.setShowNonWorkingDays(false); // Defaults to "Arbejdstimer"
 
-    // Store the selected user, allowing the app to use it when scrolling through weeks
+    // Toggle the selected user in the activeMembers list
     const user = this.clickupStore
       .members()
       .find((member: userType) => member.email === email);
 
     if (user) {
-      this.clickupStore.setActiveMember(user);
+      const isMemberActive = this.clickupStore.toggleActiveMember(user);
+      if (isMemberActive) {
+        this.teamupStore.removeUserEvents(user.email);
+      }
     }
+
     this.closeSidebar();
   }
 }

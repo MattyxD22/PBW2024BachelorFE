@@ -42,7 +42,7 @@ export class FullCalendarComponent {
   @ViewChild('calendar') calendarComponent!: { getApi: () => Calendar };
 
   // Get events from the store
-  readonly events = this.teamupStore.getUserCalendar;
+  readonly events = this.teamupStore.getUserCalendars;
   readonly subCalenders = this.teamupStore.getSubcalendars();
   readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
 
@@ -81,7 +81,6 @@ export class FullCalendarComponent {
       center: 'title',
       right: this.headerBtnsRight,
     },
-
     initialView: 'timeGridWeek',
     weekends: true,
     editable: false,
@@ -92,6 +91,8 @@ export class FullCalendarComponent {
     nowIndicator: true,
     firstDay: 1,
     eventBackgroundColor: 'PrimaryColor',
+    eventOverlap: true, // Allow overlapping events
+    slotEventOverlap: true, // Allow overlapping in time slots
     businessHours: {
       daysOfWeek: [1, 2, 3, 4, 5],
       startTime: '5:00',
@@ -107,36 +108,26 @@ export class FullCalendarComponent {
         slotDuration: '00:30:00',
       },
     },
-
     events: [], // Initialize with an empty array
     eventContent: (arg) => {
       const { event } = arg;
       const { extendedProps } = event;
-
-      // Set default title
       const title = event.title || 'Event';
-      const taskDetails = extendedProps['taskDetails'];
 
-      // Handle cases where taskDetails is null or undefined
-      if (!taskDetails || taskDetails.length === 0) {
-        return { html: `<div><strong>${title}</strong></div>` };
-      }
-
-      // Render multiple task details if available
-      const taskContent = taskDetails
+      const taskContent = (extendedProps['taskDetails'] || [])
         .map(
           (task: any) => `
-          <div class="task-detail border-b px-1 py-1 bg-surface-calendarItem mx-1 my-1 rounded shadow-2xl">
-            <div><strong>${task.title}</strong></div>
-            <div>${task.duration.hours}h ${task.duration.minutes}m</div>
-          </div>
-        `
+            <div class="task-detail">
+              <div><strong>${task.title}</strong></div>
+              <div>${task.duration.hours}h ${task.duration.minutes}m</div>
+            </div>
+          `
         )
         .join('');
 
       return {
         html: `
-          <div class="">
+          <div>
             <strong>${title}</strong>
             ${taskContent}
           </div>
@@ -147,12 +138,13 @@ export class FullCalendarComponent {
       const startDate = arg.start.toISOString().split('T')[0];
       const endDate = arg.end.toISOString().split('T')[0];
 
-      // update the store, with the start and end date of the currently visible week
       this.globalStore.setShowingWeek(startDate, endDate);
 
-      const activeMember = this.clickupStore.activeMember();
-      if (activeMember) {
-        this.teamupStore.setUserEvents(activeMember.email, startDate, endDate);
+      const activeMembers = this.clickupStore.activeMembers(); // Assume this returns multiple members
+      if (Array.isArray(activeMembers) && activeMembers.length > 0) {
+        activeMembers.forEach((member) => {
+          this.teamupStore.setUserEvents(member.email, startDate, endDate);
+        });
       }
     },
   });
@@ -190,65 +182,71 @@ export class FullCalendarComponent {
   );
 
   // Method to update calendar events
-  private updateCalendarEvents(events: any[], showSickDays: boolean) {
+  private updateCalendarEvents(events: any, showSickDays: boolean) {
     this.calendarOptions.set({
       events: this.transformEvents(events, showSickDays),
     });
   }
 
   // Method to transform the event data
-  private transformEvents(events: any[], showSickDays: boolean): any[] {
+  private transformEvents(
+    events: Record<string, teamupEventType[]>,
+    showSickDays: boolean
+  ): any[] {
     const transformedEvents: any[] = [];
 
-    let allowedCalendarIds = this.teamupStore
-      .subcalendars()
-      .filter((item: any) => item.name === 'Office' || item.name === 'Remote')
-      .map((calendar: any) => calendar.id); // Extract only the ids
+    // Flatten the events object into a single array
+    const flattenedEvents = Object.values(events).flat();
 
-    if (showSickDays) {
-      allowedCalendarIds = this.teamupStore
-        .subcalendars()
-        .filter((item: any) => item.name === 'Sick' || item.name === 'Holiday')
-        .map((calendar: any) => calendar.id); // Extract only the ids
+    // Ensure 'flattenedEvents' is an array before proceeding
+    if (!Array.isArray(flattenedEvents)) {
+      console.error(
+        'Expected an array of events, but received:',
+        flattenedEvents
+      );
+      return transformedEvents; // Return an empty array if events is not an array
     }
+
+    const allowedCalendarIds = this.teamupStore
+      .subcalendars()
+      .filter((item: any) =>
+        showSickDays
+          ? ['Sick', 'Holiday'].includes(item.name)
+          : ['Office', 'Remote'].includes(item.name)
+      )
+      .map((calendar: any) => calendar.id);
 
     const clickupTasks = this.clickupStore.tasks();
 
-    events.forEach((event: teamupEventType) => {
+    flattenedEvents.forEach((event: teamupEventType) => {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
-        const eventStartDate = new Date(event.startDate).toDateString(); // Gets a string like "Fri Nov 01 2024"
+        const eventStartDate = new Date(event.startDate).toDateString();
 
-        // Find all corresponding tasks based on the logged date
         const correspondingTasks = clickupTasks.filter(
-          (task: clickupTaskType) => {
-            const taskDate = new Date(parseInt(task.dateLogged));
-
-            const taskStartDate = taskDate.toDateString();
-            return taskStartDate === eventStartDate;
-          }
+          (task: clickupTaskType) =>
+            new Date(parseInt(task.dateLogged)).toDateString() ===
+            eventStartDate
         );
 
         transformedEvents.push({
-          id: event.id,
-          title: ' ', // maybe show type of calendar?
+          id: `${event.id}-${eventStartDate}`, // Ensure unique ID
+          title: event.title || 'Event', // Fallback title
           start: event.startDate,
           end: event.endDate,
           allDay: event.all_day || false,
           extendedProps: {
             email: event.custom?.email || '',
-            taskDetails:
-              correspondingTasks.length > 0
-                ? correspondingTasks.map((task: any) => ({
-                    title: task.taskTitle,
-                    dateLogged: task.dateLogged,
-                    loggedBy: task.loggedBy,
-                    duration: task.duration, // or any other property you want to include
-                  }))
-                : null, // Set to null if no corresponding tasks are found
+            taskDetails: correspondingTasks.map((task: any) => ({
+              title: task.taskTitle,
+              dateLogged: task.dateLogged,
+              loggedBy: task.loggedBy,
+              duration: task.duration,
+            })),
           },
         });
       }
     });
+
     return transformedEvents;
   }
 }

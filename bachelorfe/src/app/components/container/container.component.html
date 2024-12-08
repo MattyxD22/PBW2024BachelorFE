@@ -7,7 +7,7 @@
     <app-user-side-component
       [searchString]="searchString"
       [userList]="userList"
-      [currentUser]="currentUser"
+      [selectedUsers]="selectedUsers"
       [currentDevice]="deviceType"
     ></app-user-side-component>
   </div>
@@ -15,7 +15,7 @@
   <app-m-header
     [searchString]="searchString"
     [userList]="userList"
-    [currentUser]="currentUser"
+    [selectedUsers]="selectedUsers"
     [currentDevice]="deviceType"
     (showWorkingdays)="setShowWorkDays()"
     (showSickDays)="setShowSickDays()"
@@ -27,7 +27,7 @@
     [ngClass]="deviceTypeStore.isDesktop() ? ' w-10/12' : 'w-full'"
   >
     <app-data-side
-      [currentUser]="currentUser"
+      [selectedUsers]="selectedUsers"
       [userList]="userList"
       [currentDevice]="deviceType"
       [shouldRender]="deviceTypeStore.isDesktop()"

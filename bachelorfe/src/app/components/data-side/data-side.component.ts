@@ -47,7 +47,7 @@ export class DataSideComponent implements AfterViewInit {
   //@ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
   @Input() shouldRender: boolean = true;
   @Input() currentDevice!: Signal<string>;
-  @Input() currentUser!: Signal<userType>;
+  @Input() selectedUsers!: Signal<userType>;
   @Input() userList!: Signal<userType[]>;
 
 

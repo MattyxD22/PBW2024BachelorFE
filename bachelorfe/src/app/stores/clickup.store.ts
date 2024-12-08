@@ -14,13 +14,13 @@ import { clickupTaskType } from '../types/clickup-task.type';
 type clickupState = {
   members: userType[];
   tasks: clickupTaskType[];
-  activeMember: userType;
+  activeMembers: userType[];
 };
 
 const initialState: clickupState = {
   members: [],
   tasks: [],
-  activeMember: { email: '', name: '' } as userType,
+  activeMembers: [],
 };
 
 export const ClickupStore = signalStore(
@@ -31,7 +31,7 @@ export const ClickupStore = signalStore(
   withComputed((state) => ({
     getMembers: computed(() => state.members()),
     getTasks: computed(() => state.tasks()),
-    getActiveMember: computed(() => state.activeMember()),
+    getActiveMembers: computed(() => state.activeMembers()),
   })),
 
   withMethods((store) => {
@@ -64,8 +64,19 @@ export const ClickupStore = signalStore(
         return clickupService.clickupFetchTasks(email);
       },
 
-      setActiveMember: (member: userType) => {
-        patchState(store, { activeMember: member });
+      toggleActiveMember: (member: userType) => {
+        const currentMembers = store.activeMembers();
+        const isMemberActive = currentMembers.some(
+          (m) => m.email === member.email
+        );
+
+        patchState(store, {
+          activeMembers: isMemberActive
+            ? currentMembers.filter((m) => m.email !== member.email) // Remove if already selected
+            : [...currentMembers, member], // Add if not selected
+        });
+
+        return isMemberActive;
       },
     };
   })
