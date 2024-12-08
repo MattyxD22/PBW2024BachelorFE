@@ -5,6 +5,7 @@ import {
   EventEmitter,
   inject,
   Input,
+  OnInit,
   Output,
   Signal,
 } from '@angular/core';
@@ -22,19 +23,20 @@ import { userType } from '../../types/user.type';
   imports: [CommonModule, UserAvatarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserListComponent {
+export class UserListComponent implements OnInit {
   protected readonly teamupStore = inject(TeamupStore);
   protected readonly clickupStore = inject(ClickupStore);
   protected readonly globalStore = inject(GlobalStore);
 
   @Input() userList!: Signal<userType[]>;
-  @Input() selectedUsers!: Signal<userType>;
+  @Input() selectedUsers!: Signal<userType[]>;
   @Input() searchString!: Signal<string>;
 
   @Output() close = new EventEmitter();
 
-  // Create a signal to hold users
-  users = this.teamupStore.getUsers();
+  ngOnInit(): void {
+    console.log(this.selectedUsers());
+  }
 
   closeSidebar() {
     this.close.emit();
@@ -43,11 +45,6 @@ export class UserListComponent {
   getUserCalendar(email: string) {
     const startOfWeek = this.globalStore.showingWeek().startOfWeek;
     const endOfWeek = this.globalStore.showingWeek().endOfWeek;
-
-    // Fetch data from stores to display events for the specific user
-    this.teamupStore.setUserEvents(email, startOfWeek, endOfWeek);
-    this.clickupStore.setTasks(email);
-    this.globalStore.setShowNonWorkingDays(false); // Defaults to "Arbejdstimer"
 
     // Toggle the selected user in the activeMembers list
     const user = this.clickupStore
@@ -58,9 +55,18 @@ export class UserListComponent {
       const isMemberActive = this.clickupStore.toggleActiveMember(user);
       if (isMemberActive) {
         this.teamupStore.removeUserEvents(user.email);
+      } else {
+        // Fetch data from stores to display events for the specific user
+        this.teamupStore.setUserEvents(email, startOfWeek, endOfWeek);
+        this.clickupStore.setTasks(email);
       }
     }
 
     this.closeSidebar();
+  }
+
+  isSelectedUser(email: string): boolean {
+    const selected = this.selectedUsers(); // Access the signal value
+    return selected && selected.some((sel) => sel.email === email);
   }
 }

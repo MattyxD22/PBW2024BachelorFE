@@ -163,10 +163,15 @@ export const TeamupStore = signalStore(
       },
       removeUserEvents: (email: string) => {
         patchState(store, (currentState) => {
-          const { [email]: _, ...rest } = currentState.userCalendars; // Remove the specific user's events
-          console.log(rest);
+          const { userCalendars } = currentState;
 
-          return { userCalendars: rest }; // Return the updated userCalendars
+          if (userCalendars[email]) {
+            const updatedUserCalendars = { ...userCalendars };
+            delete updatedUserCalendars[email]; // Remove the user's events
+            return { ...currentState, userCalendars: updatedUserCalendars };
+          }
+
+          return currentState; // No changes if the user isn't in the state
         });
       },
     };

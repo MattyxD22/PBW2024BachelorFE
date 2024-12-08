@@ -7,7 +7,7 @@ import {
   Input,
   Signal,
   ViewChild,
-  WritableSignal
+  WritableSignal,
 } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, Calendar } from '@fullcalendar/core';
@@ -38,7 +38,7 @@ export class FullCalendarComponent {
   });
   tooltipData: any = null;
   private hideTooltipTimeout: any; // Timeout reference
-  
+
   todaysDate = new Date();
 
   teamupStore = inject(TeamupStore);
@@ -96,6 +96,7 @@ export class FullCalendarComponent {
     selectMirror: true,
     dayMaxEvents: true,
     expandRows: true,
+    weekNumbers: true,
     nowIndicator: true,
     eventMouseEnter: this.onEventMouseEnter.bind(this),
     eventMouseLeave: this.onEventMouseLeave.bind(this),
@@ -113,7 +114,7 @@ export class FullCalendarComponent {
         titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
       },
       timeGridWeek: {
-        slotMinTime: '05:00:00',
+        slotMinTime: '07:00:00',
         slotMaxTime: '21:00:00',
         slotDuration: '00:30:00',
       },
@@ -194,7 +195,7 @@ export class FullCalendarComponent {
     showSickDays: boolean
   ): any[] {
     const transformedEvents: any[] = [];
- 
+
     // Define allowed calendar IDs
     // Flatten the events object into a single array
     const flattenedEvents = Object.values(events).flat();
@@ -218,21 +219,21 @@ export class FullCalendarComponent {
       .map((calendar: any) => calendar.id);
 
     const clickupTasks = this.clickupStore.tasks();
- 
+
     // Define colors for sub-calendar IDs
     const subCalendarColors: {
-      [key: string]: { background: string;};
+      [key: string]: { background: string };
     } = {
-      '13752528': { background: 'rgb(71, 112, 216)',}, // Office
-      '13752529': { background: 'rgb(79, 181, 161)',}, // Holiday
-      '13753382': { background: 'rgb(160, 26, 26)',}, // Remote
-      '13753384': { background: 'rgb(119, 66, 169)'}, // Sick
+      '13752528': { background: 'rgb(71, 112, 216)' }, // Office
+      '13752529': { background: 'rgb(79, 181, 161)' }, // Holiday
+      '13753382': { background: 'rgb(160, 26, 26)' }, // Remote
+      '13753384': { background: 'rgb(119, 66, 169)' }, // Sick
     };
- 
+
     flattenedEvents.forEach((event: teamupEventType) => {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
         const eventStartDate = new Date(event.startDate).toDateString(); // Format start date
- 
+
         // Find tasks corresponding to the event's date
         const correspondingTasks = clickupTasks.filter(
           (task: clickupTaskType) => {
@@ -240,12 +241,12 @@ export class FullCalendarComponent {
             return taskDate.toDateString() === eventStartDate;
           }
         );
- 
+
         // Get colors for the sub-calendar ID
         const colors = subCalendarColors[event.subcalenderId] || {
-          background: '#d3d3d3', 
+          background: '#d3d3d3',
         };
- 
+
         transformedEvents.push({
           id: `${event.id}-${eventStartDate}`, // Ensure unique ID
           title: event.title || 'Event', // Fallback title
@@ -255,26 +256,23 @@ export class FullCalendarComponent {
           backgroundColor: colors.background, // Set background color
           extendedProps: {
             email: event.custom?.email || '',
-            subCalendarId: event.subcalenderId,
             taskDetails:
               correspondingTasks.length > 0
                 ? correspondingTasks.map((task: any) => ({
                     title: task.taskTitle,
                     dateLogged: task.dateLogged,
                     loggedBy: task.loggedBy,
-                    duration: task.duration,
+                    duration: task.duration, // or any other property you want to include
                   }))
-                : null,
+                : null, // Set to null if no corresponding tasks are found
           },
         });
       }
     });
- 
-
     return transformedEvents;
   }
 
-  onEventMouseEnter(mouseEnterInfo: any){
+  onEventMouseEnter(mouseEnterInfo: any) {
     const jsEvent = mouseEnterInfo.jsEvent;
 
     if (this.hideTooltipTimeout) {
@@ -289,17 +287,15 @@ export class FullCalendarComponent {
       name: mouseEnterInfo.event.name,
       email: mouseEnterInfo.event.email,
       subcalendar: mouseEnterInfo.event.subcalender,
-      date: mouseEnterInfo.event.date
+      date: mouseEnterInfo.event.date,
     };
 
     this.tooltipPosition.set({
       top: boundingRect.top + window.scrollY - 50,
-      left: boundingRect.left + window.scrollX + 10, 
+      left: boundingRect.left + window.scrollX + 10,
     });
 
-
     this.tooltipVisible.set(true);
-
   }
 
   onEventMouseLeave() {
@@ -308,6 +304,4 @@ export class FullCalendarComponent {
       this.tooltipVisible.set(false);
     }, 200); // Lille delay, som får det til at virke
   }
-
-  
 }
