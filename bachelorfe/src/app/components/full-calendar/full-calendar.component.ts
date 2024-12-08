@@ -57,6 +57,8 @@ export class FullCalendarComponent {
   headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
   calendarView = 'timeGridWeek';
 
+  
+
   constructor() {
     effect(
       () => {
@@ -200,6 +202,7 @@ export class FullCalendarComponent {
   private transformEvents(events: any[], showSickDays: boolean): any[] {
     const transformedEvents: any[] = [];
  
+    
     // Define allowed calendar IDs
     let allowedCalendarIds = this.teamupStore
       .subcalendars()
@@ -216,13 +219,20 @@ export class FullCalendarComponent {
     } = {
       '13752528': { background: 'rgb(71, 112, 216)',}, // Office
       '13752529': { background: 'rgb(79, 181, 161)',}, // Holiday
-      '13753382': { background: 'rgb(160, 26, 26)',}, // Remote
-      '13753384': { background: 'rgb(119, 66, 169)'}, // Sick
+      '13753382': { background: 'rgb(160, 26, 26)',}, // Sick
+      '13753384': { background: 'rgb(119, 66, 169)'}, // Remote
+    };
+
+    const subCalendarMap: { [key: number]: string } = {
+      13752528: 'Office',
+      13752529: 'Holiday',
+      13753382: 'Sick',
+      13753384: 'Remote',
     };
  
     events.forEach((event: teamupEventType) => {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
-        const eventStartDate = new Date(event.startDate).toDateString(); // Format start date
+        const eventStartDate = new Date(event.startDate).toDateString(); 
  
         // Find tasks corresponding to the event's date
         const correspondingTasks = clickupTasks.filter(
@@ -247,6 +257,8 @@ export class FullCalendarComponent {
           extendedProps: {
             email: event.custom?.email || '',
             subCalendarId: event.subcalenderId,
+            subCalendarName: subCalendarMap[event.subcalenderId] || 'Unknown',
+            startDate: event.startDate,
             taskDetails:
               correspondingTasks.length > 0
                 ? correspondingTasks.map((task: any) => ({
@@ -263,6 +275,15 @@ export class FullCalendarComponent {
  
     return transformedEvents;
   }
+  
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('da-DK', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(date);
+  }
 
   onEventMouseEnter(mouseEnterInfo: any){
     const jsEvent = mouseEnterInfo.jsEvent;
@@ -274,12 +295,12 @@ export class FullCalendarComponent {
     console.log(jsEvent.target);
 
     const boundingRect = jsEvent.target.getBoundingClientRect();
+    const calendarEvent = mouseEnterInfo.event;
 
     this.tooltipData = {
-      name: mouseEnterInfo.event.name,
-      email: mouseEnterInfo.event.email,
-      subcalendar: mouseEnterInfo.event.subcalender,
-      date: mouseEnterInfo.event.date
+      email: calendarEvent.extendedProps.email,
+      subCalendarName: calendarEvent.extendedProps.subCalendarName || 'Ukendt subkalender',
+      start: this.formatDate(calendarEvent.extendedProps.startDate),
     };
 
     this.tooltipPosition.set({
@@ -287,11 +308,10 @@ export class FullCalendarComponent {
       left: boundingRect.left + window.scrollX + 10, 
     });
 
-
     this.tooltipVisible.set(true);
-
   }
 
+  
   onEventMouseLeave() {
     this.hideTooltipTimeout = setTimeout(() => {
       this.tooltipData = null;
