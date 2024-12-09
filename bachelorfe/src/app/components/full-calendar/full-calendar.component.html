@@ -6,11 +6,12 @@
 ></full-calendar>
 
 <!-- toolTip hoverbox -->
-<div 
-  class="task-detail border-b px-1 py-1 bg-surface-calendarItem mx-1 my-1 rounded shadow-2xl" 
-  *ngIf="tooltipVisible()" 
-  [style.top.px]="tooltipPosition().top" 
-  [style.left.px]="tooltipPosition().left">
+<div
+  class="tooltip_container border-b px-1 py-1 bg-surface-calendarItem mx-1 my-1 rounded shadow-2xl"
+  *ngIf="tooltipVisible()"
+  [style.top.px]="tooltipPosition().top"
+  [style.left.px]="tooltipPosition().left"
+>
   <div>
     <!-- <p><strong>{{ tooltipData?.name }}</strong></p> -->
     <p>{{ tooltipData?.email }}</p>

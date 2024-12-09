@@ -1,10 +1,8 @@
 export type clickupTaskType = {
-  duration: {
-    hours: number;
-    minutes: number;
-  };
+  taskHours: number;
+  taskMinutes: number;
   formattedDate: string;
   dateLogged: string; // it should be number, but it throws "invalid date" when creating new date
-  loggedBy: string;
+  loggedBy: string; // email of the user who logged the task / completed it
   taskTitle: string;
 };

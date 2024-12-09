@@ -8,6 +8,7 @@ import {
   Signal,
   ViewChild,
   WritableSignal,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, Calendar } from '@fullcalendar/core';
@@ -28,12 +29,15 @@ import { CommonModule } from '@angular/common';
   templateUrl: './full-calendar.component.html',
   styleUrls: ['./full-calendar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None, // allows to target calendar
 })
-
 export class FullCalendarComponent {
   calendarVisible = signal(true);
   tooltipVisible: WritableSignal<boolean> = signal(false);
-  tooltipPosition: WritableSignal<{ top: number; left: number }> = signal({
+  tooltipPosition: WritableSignal<{
+    top: number;
+    left: number;
+  }> = signal({
     top: 0,
     left: 0,
   });
@@ -57,8 +61,6 @@ export class FullCalendarComponent {
 
   headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
   calendarView = 'timeGridWeek';
-
-  
 
   constructor() {
     effect(
@@ -184,9 +186,7 @@ export class FullCalendarComponent {
   }
 
   // Method to transform the event data
-  private transformEvents(
-    events: Record<string, teamupEventType[]>,
-  ): any[] {
+  private transformEvents(events: Record<string, teamupEventType[]>): any[] {
     const transformedEvents: any[] = [];
 
     // Define allowed calendar IDs
@@ -204,8 +204,9 @@ export class FullCalendarComponent {
 
     const allowedCalendarIds = this.teamupStore
       .subcalendars()
-      .filter((item: any) => { return item}
-      )
+      .filter((item: any) => {
+        return item;
+      })
       .map((calendar: any) => calendar.id);
 
     const clickupTasks = this.clickupStore.tasks();
@@ -214,10 +215,10 @@ export class FullCalendarComponent {
     const subCalendarColors: {
       [key: string]: { background: string };
     } = {
-      '13752528': { background: 'rgb(71, 112, 216)',}, // Office
-      '13752529': { background: 'rgb(79, 181, 161)',}, // Holiday
-      '13753382': { background: 'rgb(160, 26, 26)',}, // Sick
-      '13753384': { background: 'rgb(119, 66, 169)'}, // Remote
+      '13752528': { background: 'rgb(71, 112, 216)' }, // Office
+      '13752529': { background: 'rgb(79, 181, 161)' }, // Holiday
+      '13753382': { background: 'rgb(160, 26, 26)' }, // Sick
+      '13753384': { background: 'rgb(119, 66, 169)' }, // Remote
     };
 
     const subCalendarMap: { [key: number]: string } = {
@@ -229,8 +230,8 @@ export class FullCalendarComponent {
 
     flattenedEvents.forEach((event: teamupEventType) => {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
-        const eventStartDate = new Date(event.startDate).toDateString(); 
- 
+        const eventStartDate = new Date(event.startDate).toDateString();
+
         // Find tasks corresponding to the event's date
         const correspondingTasks = clickupTasks.filter(
           (task: clickupTaskType) => {
@@ -256,7 +257,7 @@ export class FullCalendarComponent {
             subCalendarId: event.subcalenderId,
             subCalendarName: subCalendarMap[event.subcalenderId] || 'Unknown',
             startDate: event.startDate,
-          
+
             taskDetails:
               correspondingTasks.length > 0
                 ? correspondingTasks.map((task: any) => ({
@@ -282,7 +283,7 @@ export class FullCalendarComponent {
     }).format(date);
   }
 
-  onEventMouseEnter(mouseEnterInfo: any){
+  onEventMouseEnter(mouseEnterInfo: any) {
     const jsEvent = mouseEnterInfo.jsEvent;
 
     if (this.hideTooltipTimeout) {
@@ -296,19 +297,20 @@ export class FullCalendarComponent {
 
     this.tooltipData = {
       email: calendarEvent.extendedProps.email,
-      subCalendarName: calendarEvent.extendedProps.subCalendarName || 'Ukendt subkalender',
+      subCalendarName:
+        calendarEvent.extendedProps.subCalendarName || 'Ukendt subkalender',
       start: this.formatDate(calendarEvent.extendedProps.startDate),
     };
+    console.log({ top: boundingRect.top, left: boundingRect.left });
 
     this.tooltipPosition.set({
-      top: boundingRect.top + window.scrollY - 50,
+      top: boundingRect.top + window.scrollY - 85,
       left: boundingRect.left + window.scrollX + 10,
     });
 
     this.tooltipVisible.set(true);
   }
 
-  
   onEventMouseLeave() {
     this.hideTooltipTimeout = setTimeout(() => {
       this.tooltipData = null;

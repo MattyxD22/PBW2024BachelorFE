@@ -51,10 +51,14 @@ export const ClickupStore = signalStore(
       setTasks: (email: string) => {
         clickupService.clickupFetchTasks(email).subscribe({
           next: (res: any) => {
-            patchState(store, { tasks: res });
+            // Filter tasks for the provided email
+            const updatedTasks = store
+              .tasks()
+              .filter((task: clickupTaskType) => task.loggedBy !== email);
+            patchState(store, { tasks: [...updatedTasks, ...res] });
           },
           error: (error) => {
-            console.log('Error fetching user calendar');
+            console.error('Error fetching tasks for user:', error);
           },
         });
       },

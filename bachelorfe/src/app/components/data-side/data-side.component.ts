@@ -21,6 +21,7 @@ import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CalendarModule } from 'primeng/calendar';
 import { FormsModule } from '@angular/forms';
+import { clickupTaskType } from '../../types/clickup-task.type';
 
 @Component({
   selector: 'app-data-side',
@@ -50,7 +51,6 @@ export class DataSideComponent implements AfterViewInit {
   @Input() selectedUsers!: Signal<userType>;
   @Input() userList!: Signal<userType[]>;
 
-
   ngAfterViewInit(): void {}
   constructor() {}
 
@@ -66,16 +66,20 @@ export class DataSideComponent implements AfterViewInit {
     const startDate = this.rangeDates[0].toLocaleDateString(); // Local date string
     const endDate = this.rangeDates[1].toLocaleDateString(); // Local date string
 
-    let users = this.teamupStore.getUsers();
+    const subCalendars = this.teamupStore.getSubcalendars();
+
+    console.log('calenders: ', subCalendars);
+
+    let selectedUsers = this.clickupStore.activeMembers();
     let tasks: ParsedData[] = [];
 
-    if (users.length === 0) {
+    if (selectedUsers.length === 0) {
       console.log('no user selected, returning');
       return;
     }
 
     console.log('parsing', startDate, endDate);
-    const userObservables = users.map((user: userType) => {
+    const userObservables = selectedUsers.map((user: userType) => {
       const userEmail = user.email;
 
       return forkJoin({
@@ -87,28 +91,48 @@ export class DataSideComponent implements AfterViewInit {
         userTasks: this.clickupStore.fetchTaskForUser(userEmail),
       }).pipe(
         map(({ userEvents, userTasks }) => {
-          // Format userEvents to include email and parsed hours
+          // Format userEvents to include email, parsed hours, and subcalendar name
           const formattedUserEvents = userEvents.map((event) => {
             const start = new Date(event.startDate);
             const end = new Date(event.endDate);
             const hours = (end.getTime() - start.getTime()) / 3600000; // Calculate hours
 
+            // Match the subCalendarId to the corresponding subCalendar and get the name
+            const matchedCalendar = subCalendars.find(
+              (calendar) => calendar.id === event.subcalenderId
+            );
+            const subCalendarName = matchedCalendar
+              ? matchedCalendar.name
+              : 'Unknown';
+
             return {
               email: userEmail,
-              hours: hours.toFixed(2), // rounding to 2 decimal places
+              startDate: new Intl.DateTimeFormat('da-DK', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              }).format(new Date(event.startDate)),
+              endDate: new Intl.DateTimeFormat('da-DK', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              }).format(new Date(event.endDate)),
+              eventHours: hours.toFixed(2), // rounding to 2 decimal places
+              subCalendarName, // Include the calendar name
             };
-          });
-
-          // Exclude email and hours from userTasks
-          const formattedUserTasks = userTasks.map((task) => {
-            const { loggedBy, duration, ...taskWithoutEmailAndHours } = task;
-            return taskWithoutEmailAndHours;
           });
 
           return {
             userEmail,
+            userName: user.name,
             userEvents: formattedUserEvents,
-            userTasks: formattedUserTasks,
+            userTasks,
           };
         })
       );
