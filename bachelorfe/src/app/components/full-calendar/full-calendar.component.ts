@@ -171,31 +171,21 @@ export class FullCalendarComponent {
   private eventsEffect = effect(
     () => {
       const currentEvents = this.events();
-      this.updateCalendarEvents(currentEvents, false);
-    },
-    { allowSignalWrites: true }
-  );
-
-  private nonWorkingDaysEffect = effect(
-    () => {
-      const nonWorkingDaysState = this.nonWorkingDaysState();
-      const currentEvents = this.events();
-      this.updateCalendarEvents(currentEvents, nonWorkingDaysState);
+      this.updateCalendarEvents(currentEvents);
     },
     { allowSignalWrites: true }
   );
 
   // Method to update calendar events
-  private updateCalendarEvents(events: any, showSickDays: boolean) {
+  private updateCalendarEvents(events: any) {
     this.calendarOptions.set({
-      events: this.transformEvents(events, showSickDays),
+      events: this.transformEvents(events),
     });
   }
 
   // Method to transform the event data
   private transformEvents(
     events: Record<string, teamupEventType[]>,
-    showSickDays: boolean
   ): any[] {
     const transformedEvents: any[] = [];
 
@@ -214,10 +204,7 @@ export class FullCalendarComponent {
 
     const allowedCalendarIds = this.teamupStore
       .subcalendars()
-      .filter((item: any) =>
-        showSickDays
-          ? ['Sick', 'Holiday'].includes(item.name)
-          : ['Office', 'Remote'].includes(item.name)
+      .filter((item: any) => { return item}
       )
       .map((calendar: any) => calendar.id);
 
