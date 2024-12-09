@@ -4,39 +4,43 @@
 $index) {
 <div
   [ngClass]="{
-    'bg-surface-PrimaryColor':
-      currentUser() && currentUser().email === user.email,
-    'hover:cursor-pointer hover:bg-surface-lightmodeHover':
-      !currentUser() || currentUser().email !== user.email
+    'bg-surface-PrimaryColor': isSelectedUser(user.email),
+    'hover:cursor-pointer hover:bg-surface-lightmodeHover': !isSelectedUser(
+      user.email
+    )
   }"
   (click)="getUserCalendar(user.email)"
-  class="user-item flex flex-row py-4"
+  class="user-item flex flex-row py-4 m-1 rounded"
+  title="{{ user.name }}"
 >
   <app-user-avatar
     [userColor]="user.color || '#000000'"
     [userName]="user.name"
   ></app-user-avatar>
-  <span class="text-2xl font-semibold text-black content-center">{{
-    user.name
-  }}</span>
+  <span
+    class="text-2xl font-semibold text-black content-center text-ellipsis overflow-hidden text-nowrap"
+    >{{ user.name }}</span
+  >
 </div>
 } } @else { @for (user of userList(); track $index) {
 <div
   [ngClass]="{
-    'bg-surface-PrimaryColor':
-      currentUser() && currentUser().email === user.email,
-    'hover:cursor-pointer hover:bg-surface-lightmodeHover':
-      !currentUser() || currentUser().email !== user.email
+    'bg-surface-PrimaryColor': isSelectedUser(user.email),
+    'hover:cursor-pointer hover:bg-surface-lightmodeHover': !isSelectedUser(
+      user.email
+    )
   }"
   (click)="getUserCalendar(user.email); closeSidebar()"
-  class="user-item flex flex-row py-4"
+  class="user-item flex flex-row py-4 m-1 rounded"
+  title="{{ user.name }}"
 >
   <app-user-avatar
     [userColor]="user.color || '#000000'"
     [userName]="user.name"
   ></app-user-avatar>
-  <span class="text-2xl font-semibold text-black content-center">{{
-    user.name
-  }}</span>
+  <span
+    class="text-2xl font-semibold text-black content-center text-ellipsis overflow-hidden text-nowrap"
+    >{{ user.name }}</span
+  >
 </div>
 } }

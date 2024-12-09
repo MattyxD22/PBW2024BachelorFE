@@ -1,11 +1,11 @@
 <div class="p-4 border-2 border-green-500 flex flex-row">
   <div class="flex flex-row w-full relative">
     <div class="user-item flex flex-row p-6 w-full" (click)="toggleMenuLeft()">
-      @if(currentUser().name !== ''){
+      @if(selectedUsers().name !== ''){
 
       <app-user-avatar
-        [userColor]="currentUser().color"
-        [userName]="currentUser().name"
+        [userColor]="selectedUsers().color"
+        [userName]="selectedUsers().name"
       ></app-user-avatar>
       } @else {
       <p-button
@@ -16,7 +16,7 @@
       }
 
       <span class="text-2xl font-semibold text-black content-center">
-        {{ currentUser().name }}</span
+        {{ selectedUsers().name }}</span
       >
     </div>
 
@@ -36,7 +36,7 @@
     class="absolute border-2 border-l-0 border-black-500 w-[75%] bg-white left-0 top-0 h-full z-50"
   >
     <app-user-side-component
-      [currentUser]="currentUser"
+      [selectedUsers]="selectedUsers"
       [userList]="userList"
       [searchString]="searchString"
       (closeUserList)="closeMenu()"

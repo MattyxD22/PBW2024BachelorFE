@@ -7,7 +7,7 @@ import {
   Input,
   Signal,
   ViewChild,
-  WritableSignal
+  WritableSignal,
 } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, Calendar } from '@fullcalendar/core';
@@ -29,6 +29,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./full-calendar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class FullCalendarComponent {
   calendarVisible = signal(true);
   tooltipVisible: WritableSignal<boolean> = signal(false);
@@ -38,7 +39,7 @@ export class FullCalendarComponent {
   });
   tooltipData: any = null;
   private hideTooltipTimeout: any; // Timeout reference
-  
+
   todaysDate = new Date();
 
   teamupStore = inject(TeamupStore);
@@ -50,7 +51,7 @@ export class FullCalendarComponent {
   @ViewChild('calendar') calendarComponent!: { getApi: () => Calendar };
 
   // Get events from the store
-  readonly events = this.teamupStore.getUserCalendar;
+  readonly events = this.teamupStore.getUserCalendars;
   readonly subCalenders = this.teamupStore.getSubcalendars();
   readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
 
@@ -91,7 +92,6 @@ export class FullCalendarComponent {
       center: 'title',
       right: this.headerBtnsRight,
     },
-
     initialView: 'timeGridWeek',
     weekends: true,
     editable: false,
@@ -99,11 +99,14 @@ export class FullCalendarComponent {
     selectMirror: true,
     dayMaxEvents: true,
     expandRows: true,
+    weekNumbers: true,
     nowIndicator: true,
     eventMouseEnter: this.onEventMouseEnter.bind(this),
     eventMouseLeave: this.onEventMouseLeave.bind(this),
     firstDay: 1,
     eventBackgroundColor: 'PrimaryColor',
+    eventOverlap: true, // Allow overlapping events
+    slotEventOverlap: true, // Allow overlapping in time slots
     businessHours: {
       daysOfWeek: [1, 2, 3, 4, 5],
       startTime: '5:00',
@@ -114,57 +117,48 @@ export class FullCalendarComponent {
         titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
       },
       timeGridWeek: {
-        slotMinTime: '05:00:00',
+        slotMinTime: '07:00:00',
         slotMaxTime: '21:00:00',
         slotDuration: '00:30:00',
       },
     },
-
     events: [], // Initialize with an empty array
-    eventContent: (arg) => {
+    eventContent: (arg: any) => {
       const { event } = arg;
       const { extendedProps } = event;
-
-      // Set default title
       const title = event.title || 'Event';
-      const taskDetails = extendedProps['taskDetails'];
 
-      // Handle cases where taskDetails is null or undefined
-      if (!taskDetails || taskDetails.length === 0) {
-        return { html: `<div><strong>${title}</strong></div>` };
-      }
-
-      // Render multiple task details if available
-      const taskContent = taskDetails
+      const taskContent = (extendedProps['taskDetails'] || [])
         .map(
           (task: any) => `
-          <div class="task-detail border-b px-1 py-1 bg-surface-calendarItem mx-1 my-1 rounded shadow-2xl">
-            <div><strong>${task.title}</strong></div>
-            <div>${task.duration.hours}h ${task.duration.minutes}m</div>
-          </div>
-        `
+            <div class="task-detail">
+              <div><strong>${task.title}</strong></div>
+              <div>${task.duration.hours}h ${task.duration.minutes}m</div>
+            </div>
+          `
         )
         .join('');
 
       return {
         html: `
-          <div class="">
+          <div>
             <strong>${title}</strong>
             ${taskContent}
           </div>
         `,
       };
     },
-    datesSet: (arg) => {
+    datesSet: (arg: any) => {
       const startDate = arg.start.toISOString().split('T')[0];
       const endDate = arg.end.toISOString().split('T')[0];
 
-      // update the store, with the start and end date of the currently visible week
       this.globalStore.setShowingWeek(startDate, endDate);
 
-      const activeMember = this.clickupStore.activeMember();
-      if (activeMember) {
-        this.teamupStore.setUserEvents(activeMember.email, startDate, endDate);
+      const activeMembers = this.clickupStore.activeMembers(); // Assume this returns multiple members
+      if (Array.isArray(activeMembers) && activeMembers.length > 0) {
+        activeMembers.forEach((member) => {
+          this.teamupStore.setUserEvents(member.email, startDate, endDate);
+        });
       }
     },
   });
@@ -192,30 +186,46 @@ export class FullCalendarComponent {
   );
 
   // Method to update calendar events
-  private updateCalendarEvents(events: any[], showSickDays: boolean) {
+  private updateCalendarEvents(events: any, showSickDays: boolean) {
     this.calendarOptions.set({
       events: this.transformEvents(events, showSickDays),
     });
   }
 
   // Method to transform the event data
-  private transformEvents(events: any[], showSickDays: boolean): any[] {
+  private transformEvents(
+    events: Record<string, teamupEventType[]>,
+    showSickDays: boolean
+  ): any[] {
     const transformedEvents: any[] = [];
- 
-    
+
     // Define allowed calendar IDs
-    let allowedCalendarIds = this.teamupStore
+    // Flatten the events object into a single array
+    const flattenedEvents = Object.values(events).flat();
+
+    // Ensure 'flattenedEvents' is an array before proceeding
+    if (!Array.isArray(flattenedEvents)) {
+      console.error(
+        'Expected an array of events, but received:',
+        flattenedEvents
+      );
+      return transformedEvents; // Return an empty array if events is not an array
+    }
+
+    const allowedCalendarIds = this.teamupStore
       .subcalendars()
-      .filter((item: any) => {
-      return item;
-    })
+      .filter((item: any) =>
+        showSickDays
+          ? ['Sick', 'Holiday'].includes(item.name)
+          : ['Office', 'Remote'].includes(item.name)
+      )
       .map((calendar: any) => calendar.id);
- 
+
     const clickupTasks = this.clickupStore.tasks();
- 
+
     // Define colors for sub-calendar IDs
     const subCalendarColors: {
-      [key: string]: { background: string;};
+      [key: string]: { background: string };
     } = {
       '13752528': { background: 'rgb(71, 112, 216)',}, // Office
       '13752529': { background: 'rgb(79, 181, 161)',}, // Holiday
@@ -229,8 +239,8 @@ export class FullCalendarComponent {
       13753382: 'Sick',
       13753384: 'Remote',
     };
- 
-    events.forEach((event: teamupEventType) => {
+
+    flattenedEvents.forEach((event: teamupEventType) => {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
         const eventStartDate = new Date(event.startDate).toDateString(); 
  
@@ -241,15 +251,15 @@ export class FullCalendarComponent {
             return taskDate.toDateString() === eventStartDate;
           }
         );
- 
+
         // Get colors for the sub-calendar ID
         const colors = subCalendarColors[event.subcalenderId] || {
-          background: '#d3d3d3', 
+          background: '#d3d3d3',
         };
- 
+
         transformedEvents.push({
-          id: event.id,
-          title: ' ', // Placeholder or set dynamically
+          id: `${event.id}-${eventStartDate}`, // Ensure unique ID
+          title: event.title || 'Event', // Fallback title
           start: event.startDate,
           end: event.endDate,
           allDay: event.all_day || false,
@@ -265,17 +275,16 @@ export class FullCalendarComponent {
                     title: task.taskTitle,
                     dateLogged: task.dateLogged,
                     loggedBy: task.loggedBy,
-                    duration: task.duration,
+                    duration: task.duration, // or any other property you want to include
                   }))
-                : null,
+                : null, // Set to null if no corresponding tasks are found
           },
         });
       }
     });
- 
     return transformedEvents;
   }
-  
+
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('da-DK', {
@@ -305,7 +314,7 @@ export class FullCalendarComponent {
 
     this.tooltipPosition.set({
       top: boundingRect.top + window.scrollY - 50,
-      left: boundingRect.left + window.scrollX + 10, 
+      left: boundingRect.left + window.scrollX + 10,
     });
 
     this.tooltipVisible.set(true);
@@ -318,6 +327,4 @@ export class FullCalendarComponent {
       this.tooltipVisible.set(false);
     }, 200); // Lille delay, som får det til at virke
   }
-
-  
 }
