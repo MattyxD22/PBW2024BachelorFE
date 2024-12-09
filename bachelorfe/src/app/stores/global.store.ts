@@ -42,6 +42,7 @@ export const GlobalStore = signalStore(
       setShowingWeek: (startOfWeek: string, endOfWeek: string) => {
         patchState(store, { showingWeek: { startOfWeek, endOfWeek } });
       },
+
       // TODO Create type for csvData
       sendExportdata: async (csvData: any) => {
         await globalService.exportCSV(csvData);
