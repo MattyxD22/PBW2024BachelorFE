@@ -195,7 +195,7 @@ export class FullCalendarComponent {
   // Method to transform the event data
   private transformEvents(
     events: Record<string, teamupEventType[]>,
-    showSickDays: boolean
+    showSickDays: boolean,
   ): any[] {
     const transformedEvents: any[] = [];
 
@@ -269,6 +269,7 @@ export class FullCalendarComponent {
             subCalendarId: event.subcalenderId,
             subCalendarName: subCalendarMap[event.subcalenderId] || 'Unknown',
             startDate: event.startDate,
+          
             taskDetails:
               correspondingTasks.length > 0
                 ? correspondingTasks.map((task: any) => ({

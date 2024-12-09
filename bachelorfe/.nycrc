@@ -1,0 +1,8 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "all": true,
+  "include": ["src/**/*.ts"], 
+  "exclude": ["tests/**/*.ts", "src/app/stores/*.ts", "src/app/types/*.ts", "src/**/*.spec.ts"], 
+  "reporter": ["text", "lcov", "html"], 
+  "cache": false
+}

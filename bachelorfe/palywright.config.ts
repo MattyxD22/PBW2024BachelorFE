@@ -7,6 +7,7 @@ export default defineConfig({
     headless: true,  // Run tests in headless mode
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
+    trace: 'on'
   },
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
@@ -14,3 +15,4 @@ export default defineConfig({
     { name: 'webkit', use: { browserName: 'webkit' } },
   ],
 });
+

@@ -34,7 +34,7 @@ import { userType } from '../../types/user.type';
 export class UserSideComponent {
   protected readonly teamupStore = inject(TeamupStore);
   @Input() currentDevice!: Signal<string>;
-  @Input() selectedUsers!: Signal<userType>;
+  @Input() selectedUsers!: Signal<userType[]>;
   @Input() userList!: Signal<userType[]>;
   @Input() searchString!: Signal<string>;
 

@@ -38,6 +38,9 @@ yarn-error.log
 testem.log
 /typings
 .env
+/coverage
+/.nyc_output
+.nyc_output
 
 
 # System files
