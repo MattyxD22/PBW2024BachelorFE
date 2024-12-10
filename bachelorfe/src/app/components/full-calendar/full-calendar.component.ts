@@ -51,6 +51,9 @@ export class FullCalendarComponent {
   globalStore = inject(GlobalStore);
   @Input() currentDevice!: Signal<string>;
 
+  // store the task html in the event below, to access it in the tooltip / hover
+  private storeTaskHTML = new Map<string, string>();
+
   //breaking the setup a little bit here, but this is to access the calendar directly
   @ViewChild('calendar') calendarComponent!: { getApi: () => Calendar };
 
@@ -132,22 +135,28 @@ export class FullCalendarComponent {
 
       const taskContent = (extendedProps['taskDetails'] || [])
         .map(
-          (task: any) => `
+          (task: clickupTaskType) => `
             <div class="task-detail">
-              <div><strong>${task.title}</strong></div>
-              <div>${task.duration.hours}h ${task.duration.minutes}m</div>
+              <div><strong class="text-white">${task.taskTitle}</strong></div>
+              <div class="text-white">${task.taskHours}h ${task.taskMinutes}m</div>
             </div>
           `
         )
         .join('');
 
+      // Generate the HTML content
+      const htmlContent = `
+        <div>
+          <strong>${title}</strong>
+          ${taskContent}
+        </div>
+      `;
+
+      // Store the HTML content in the map
+      this.storeTaskHTML.set(event.id, htmlContent);
+
       return {
-        html: `
-          <div>
-            <strong>${title}</strong>
-            ${taskContent}
-          </div>
-        `,
+        html: htmlContent, // Render the HTML in the calendar
       };
     },
     datesSet: (arg: any) => {
@@ -232,11 +241,17 @@ export class FullCalendarComponent {
       if (allowedCalendarIds.includes(event.subcalenderId)) {
         const eventStartDate = new Date(event.startDate).toDateString();
 
-        // Find tasks corresponding to the event's date
+        // Ensure you filter tasks based on user assignments
         const correspondingTasks = clickupTasks.filter(
           (task: clickupTaskType) => {
             const taskDate = new Date(parseInt(task.dateLogged));
-            return taskDate.toDateString() === eventStartDate;
+
+            // Match the event's start date
+            if (taskDate.toDateString() !== eventStartDate) return false;
+
+            // Ensure task is assigned to the user(s) related to this event
+            // Assuming `event.custom.email` stores the user assigned to the event (modify as needed)
+            return task.email && task.email.includes(event.custom?.email);
           }
         );
 
@@ -258,19 +273,22 @@ export class FullCalendarComponent {
             subCalendarName: subCalendarMap[event.subcalenderId] || 'Unknown',
             startDate: event.startDate,
 
+            // Attach taskDetails only for tasks assigned to the specific user
             taskDetails:
               correspondingTasks.length > 0
                 ? correspondingTasks.map((task: any) => ({
-                    title: task.taskTitle,
+                    taskTitle: task.taskTitle,
                     dateLogged: task.dateLogged,
                     loggedBy: task.loggedBy,
-                    duration: task.duration, // or any other property you want to include
+                    taskHours: task.taskHours,
+                    taskMinutes: task.taskMinutes,
                   }))
                 : null, // Set to null if no corresponding tasks are found
           },
         });
       }
     });
+
     return transformedEvents;
   }
 
@@ -300,6 +318,7 @@ export class FullCalendarComponent {
       subCalendarName:
         calendarEvent.extendedProps.subCalendarName || 'Ukendt subkalender',
       start: this.formatDate(calendarEvent.extendedProps.startDate),
+      html: this.storeTaskHTML.get(calendarEvent.id) || '',
     };
     console.log({ top: boundingRect.top, left: boundingRect.left });
 

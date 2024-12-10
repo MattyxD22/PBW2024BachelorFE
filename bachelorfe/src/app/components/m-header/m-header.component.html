@@ -1,23 +1,36 @@
-<!-- <div class="p-4 border-2 border-green-500 flex flex-row">
+<div class="p-4 border-2 border-green-500 flex flex-row">
   <div class="flex flex-row w-full relative">
-    <div class="user-item flex flex-row p-6 w-full" (click)="toggleMenuLeft()">
-      @if(selectedUsers().name !== ''){
-
+    <div class="user-item flex flex-row p-6 w-full">
+      <!-- Use @if to check if selectedUsers() has at least one user -->
+      @if(selectedUsers().length === 1) {
       <app-user-avatar
-        [userColor]="selectedUsers().color"
-        [userName]="selectedUsers().name"
+        [userColor]="selectedUsers()[0].color"
+        [userName]="selectedUsers()[0].name"
       ></app-user-avatar>
-      } @else {
+      } @if(selectedUsers().length > 1) {
+
+      <div class="position_user_avatars flex flex-row">
+        @for (user of selectedUsers(); track $index) {
+
+        <app-user-avatar
+          [userColor]="user.color"
+          [userName]="user.name"
+        ></app-user-avatar>
+
+        }
+      </div>
+
+      } @if(selectedUsers().length === 0) {
       <p-button
         icon="pi pi-user"
         pButton
         class="w-16 h-16 rounded-full border-2 border-black-500 mr-6"
-      />
-      }
-
+      ></p-button>
+      } @if(selectedUsers().length === 1) {
       <span class="text-2xl font-semibold text-black content-center">
-        {{ selectedUsers().name }}</span
-      >
+        {{ selectedUsers()[0].name }}
+      </span>
+      }
     </div>
 
     <div class="mx-auto flex justify-center content-center">
@@ -26,7 +39,7 @@
         pRipple
         pButton
         icon="pi pi-bars"
-        (onClick)="toggleMenuRight()"
+        (onClick)="toggleMenuLeft()"
       />
     </div>
   </div>
@@ -43,28 +56,5 @@
       [currentDevice]="currentDevice"
     ></app-user-side-component>
   </div>
-  } @if(showRightMenu){
-  <div
-    class="absolute border-2 border-r-0 border-black-500 w-[75%] bg-white -right-2 top-0 h-full z-50 flex flex-col content-center"
-  >
-    <div class="flex flex-row mx-auto py-4">
-      <p-button
-        pButton
-        (onClick)="closeMenu(1)"
-        severity="primary"
-        label="Arbejdstimer"
-        class="w-36 justify-center"
-      ></p-button>
-    </div>
-    <div class="flex flex-row mx-auto py-4">
-      <p-button
-        pButton
-        (onClick)="closeMenu(2)"
-        severity="primary"
-        label="Fridage"
-        class="w-36 justify-center"
-      ></p-button>
-    </div>
-  </div>
   }
-</div> -->
+</div>

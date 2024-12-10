@@ -11,15 +11,6 @@
       [currentDevice]="deviceType"
     ></app-user-side-component>
   </div>
-  } @if(!deviceTypeStore.isDesktop()){
-  <app-m-header
-    [searchString]="searchString"
-    [userList]="userList"
-    [selectedUsers]="selectedUsers"
-    [currentDevice]="deviceType"
-    (showWorkingdays)="setShowWorkDays()"
-    (showSickDays)="setShowSickDays()"
-  ></app-m-header>
   }
 
   <div
@@ -40,4 +31,14 @@
     >
     </app-data-side>
   </div>
+  @if(!deviceTypeStore.isDesktop()){
+  <app-m-header
+    [searchString]="searchString"
+    [userList]="userList"
+    [selectedUsers]="selectedUsers"
+    [currentDevice]="deviceType"
+    (showWorkingdays)="setShowWorkDays()"
+    (showSickDays)="setShowSickDays()"
+  ></app-m-header>
+  }
 </div>

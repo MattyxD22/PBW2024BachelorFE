@@ -23,7 +23,7 @@ import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 // M is for "mobile"
 export class MHeaderComponent {
   @Input() currentDevice!: Signal<string>;
-  @Input() selectedUsers!: Signal<userType>;
+  @Input() selectedUsers!: Signal<userType[]>;
   @Input() userList!: Signal<userType[]>;
   @Input() searchString!: Signal<string>;
 

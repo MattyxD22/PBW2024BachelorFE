@@ -10,7 +10,7 @@ import { AfterViewInit, Component, Input, OnInit, Signal } from '@angular/core';
 })
 export class UserAvatarComponent implements AfterViewInit {
   @Input() userName: string = '';
-  @Input() userColor: string = '';
+  @Input() userColor!: string;
 
   ngAfterViewInit() {
     console.log(this.userName, this.userColor);

@@ -107,22 +107,8 @@ export class DataSideComponent implements AfterViewInit {
 
             return {
               email: userEmail,
-              startDate: new Intl.DateTimeFormat('da-DK', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              }).format(new Date(event.startDate)),
-              endDate: new Intl.DateTimeFormat('da-DK', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              }).format(new Date(event.endDate)),
+              startDate: event.startDate,
+              endDate: event.endDate,
               eventHours: hours.toFixed(2), // rounding to 2 decimal places
               subCalendarName, // Include the calendar name
             };

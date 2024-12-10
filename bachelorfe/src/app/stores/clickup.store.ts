@@ -74,6 +74,8 @@ export const ClickupStore = signalStore(
           (m) => m.email === member.email
         );
 
+        console.log('member: ', member);
+
         patchState(store, {
           activeMembers: isMemberActive
             ? currentMembers.filter((m) => m.email !== member.email) // Remove if already selected

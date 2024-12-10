@@ -17,5 +17,9 @@
     <p>{{ tooltipData?.email }}</p>
     <p>{{ tooltipData?.subCalendarName }}</p>
     <p>{{ tooltipData?.start }}</p>
+
+    <div class="flex flex-row">
+      <div [innerHTML]="tooltipData?.html"></div>
+    </div>
   </div>
 </div>

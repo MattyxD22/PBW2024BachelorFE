@@ -47,8 +47,8 @@ export class UserListComponent implements OnInit {
     const endOfWeek = this.globalStore.showingWeek().endOfWeek;
 
     // Toggle the selected user in the activeMembers list
-    const user = this.clickupStore
-      .members()
+    const user = this.teamupStore
+      .users()
       .find((member: userType) => member.email === email);
 
     if (user) {
