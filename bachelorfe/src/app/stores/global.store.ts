@@ -9,12 +9,10 @@ import { computed, inject } from '@angular/core';
 import { GlobalService } from '../services/global.service';
 
 type globalState = {
-  showNonWorkingDays: any;
   showingWeek: { startOfWeek: string; endOfWeek: string };
 };
 
 const initialState: globalState = {
-  showNonWorkingDays: false,
   showingWeek: {
     startOfWeek: '',
     endOfWeek: '',
@@ -26,16 +24,9 @@ export const GlobalStore = signalStore(
 
   withState(initialState),
 
-  withComputed((state) => ({
-    getShowNonWorkingDays: computed(() => state.showNonWorkingDays()),
-  })),
-
   withMethods((store) => {
     const globalService = inject(GlobalService);
     return {
-      setShowNonWorkingDays: (state: boolean) => {
-        patchState(store, { showNonWorkingDays: state });
-      },
 
       // stores the start and end days of a week, to be used when fetching users
       // that way, the backend knows from when the data should be retrieved

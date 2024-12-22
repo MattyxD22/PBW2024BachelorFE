@@ -58,9 +58,8 @@ export class FullCalendarComponent {
   @ViewChild('calendar') calendarComponent!: { getApi: () => Calendar };
 
   // Get events from the store
-  readonly events = this.teamupStore.getUserCalendars;
-  readonly subCalenders = this.teamupStore.getSubcalendars();
-  readonly nonWorkingDaysState = this.globalStore.showNonWorkingDays;
+  readonly events = this.teamupStore.userCalendars;
+  readonly subCalenders = this.teamupStore.subcalendars;
 
   headerBtnsRight = 'timeGridDay,timeGridWeek,dayGridMonth';
   calendarView = 'timeGridWeek';
@@ -127,7 +126,7 @@ export class FullCalendarComponent {
         slotDuration: '00:30:00',
       },
     },
-    events: [], // Initialize with an empty array
+    events: [],
     eventContent: (arg: any) => {
       const { event } = arg;
       const { extendedProps } = event;
@@ -144,7 +143,6 @@ export class FullCalendarComponent {
         )
         .join('');
 
-      // Generate the HTML content
       const htmlContent = `
         <div>
           <strong>${title}</strong>
@@ -152,11 +150,10 @@ export class FullCalendarComponent {
         </div>
       `;
 
-      // Store the HTML content in the map
       this.storeTaskHTML.set(event.id, htmlContent);
 
       return {
-        html: htmlContent, // Render the HTML in the calendar
+        html: htmlContent,
       };
     },
     datesSet: (arg: any) => {
@@ -308,8 +305,6 @@ export class FullCalendarComponent {
       clearTimeout(this.hideTooltipTimeout); // Cancel any pending hide
     }
 
-    console.log(jsEvent.target);
-
     const boundingRect = jsEvent.target.getBoundingClientRect();
     const calendarEvent = mouseEnterInfo.event;
 
@@ -320,7 +315,6 @@ export class FullCalendarComponent {
       start: this.formatDate(calendarEvent.extendedProps.startDate),
       html: this.storeTaskHTML.get(calendarEvent.id) || '',
     };
-    console.log({ top: boundingRect.top, left: boundingRect.left });
 
     this.tooltipPosition.set({
       top: boundingRect.top + window.scrollY - 85,

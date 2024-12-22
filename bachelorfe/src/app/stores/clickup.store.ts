@@ -6,8 +6,8 @@ import {
   patchState,
 } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
-import { TeamupService } from '../services/teamupServices/teamup.service';
-import { ClickupService } from '../services/clickupServices/clickup.service';
+import { TeamupService } from '../services/teamup.service';
+import { ClickupService } from '../services/clickup.service';
 import { userType } from '../types/user.type';
 import { clickupTaskType } from '../types/clickup-task.type';
 
@@ -27,12 +27,6 @@ export const ClickupStore = signalStore(
   { providedIn: 'root' },
 
   withState(initialState),
-
-  withComputed((state) => ({
-    getMembers: computed(() => state.members()),
-    getTasks: computed(() => state.tasks()),
-    getActiveMembers: computed(() => state.activeMembers()),
-  })),
 
   withMethods((store) => {
     const clickupService = inject(ClickupService);

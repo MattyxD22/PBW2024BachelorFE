@@ -6,7 +6,7 @@ import {
   patchState,
 } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
-import { TeamupService } from '../services/teamupServices/teamup.service';
+import { TeamupService } from '../services/teamup.service';
 import { userType } from '../types/user.type';
 import { subcalendarType } from '../types/teamup-subcalendar.type';
 import { teamupEventType } from '../types/teamup-events.type';
@@ -39,9 +39,6 @@ export const TeamupStore = signalStore(
   withState(initialState),
 
   withComputed((state) => ({
-    getUsers: computed(() => state.users()),
-    getSubcalendars: computed(() => state.subcalendars()),
-    getUserCalendars: computed(() => state.userCalendars()), // Access all user calendars
     getCalendarByUser: computed(
       () => (email: string) => state.userCalendars()[email] || [] // maybe not necessary
     ),
@@ -80,7 +77,7 @@ export const TeamupStore = signalStore(
       setUserEvents: (email: string, startDate?: string, endDate?: string) => {
         if (!email) {
           console.log('No email provided to fetch user events');
-          return; // Early exit if no email
+          return;
         }
 
         teamupService
@@ -88,25 +85,20 @@ export const TeamupStore = signalStore(
           .subscribe({
             next: (res: any) => {
               patchState(store, (currentState) => {
-                // Ensure userCalendars is an object
                 const existingEvents = currentState.userCalendars || {};
 
-                // Fetch the new events for the given email
                 const newEvents = res || [];
 
-                // Merge the new events with the existing ones for the specific user
                 const updatedUserEvents = [
                   ...(existingEvents[email] || []), // Existing events for this user
                   ...newEvents, // New events
                 ];
 
-                // Remove duplicate events for this user, based on `id`
                 const uniqueUserEvents = updatedUserEvents.filter(
                   (event, index, self) =>
                     self.findIndex((e) => e.id === event.id) === index
                 );
 
-                // Update the userCalendars with the new unique events for the specific user
                 return {
                   userCalendars: {
                     ...existingEvents, // Keep existing user events
@@ -120,22 +112,7 @@ export const TeamupStore = signalStore(
             },
           });
       },
-      // setUserEvents: (email: string, startDate?: string, endDate?: string) => {
-      //   if (!email) {
-      //     console.log('No email provided to fetch user events');
-      //     return; // Early exit if no email
-      //   }
-      //   teamupService
-      //     .teamupFetchUserCalendar(email, startDate, endDate)
-      //     .subscribe({
-      //       next: (res: any) => {
-      //         patchState(store, { userCalendars: res });
-      //       },
-      //       error: (error) => {
-      //         console.log('Error fetching user calendar:', error);
-      //       },
-      //     });
-      // },
+      
       setSubCalender: () => {
         teamupService.teamupFetchSubCalendar().subscribe({
           next: (res: any) => {
@@ -179,12 +156,10 @@ export const TeamupStore = signalStore(
 );
 
 function generateHexColorFromName(name: string): string {
-  // Ensure the name has content
   if (!name) {
-    return '#000000'; // Default to black if name is empty
+    return '#000000';
   }
 
-  // Hash the name to a numeric value
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);

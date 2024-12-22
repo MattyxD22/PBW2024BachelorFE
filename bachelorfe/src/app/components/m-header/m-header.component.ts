@@ -9,51 +9,41 @@ import {
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
-import { UserSideComponent } from '../user-side-component/user-side.component';
 import { userType } from '../../types/user.type';
 import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
+import { TeamupStore } from '../../stores/teamup.store';
+import { UserListComponent } from '../user-list/user-list.component';
+import { DeviceTypeStore } from '../../stores/deviceTypes.store';
 
 @Component({
   selector: 'app-m-header',
   standalone: true,
-  imports: [ButtonModule, CommonModule, UserSideComponent, UserAvatarComponent],
+  imports: [ButtonModule, CommonModule, UserAvatarComponent, UserListComponent],
   templateUrl: './m-header.component.html',
   styleUrl: './m-header.component.scss',
 })
 // M is for "mobile"
 export class MHeaderComponent {
-  @Input() currentDevice!: Signal<string>;
-  @Input() selectedUsers!: Signal<userType[]>;
-  @Input() userList!: Signal<userType[]>;
-  @Input() searchString!: Signal<string>;
+  protected readonly teamupStore = inject(TeamupStore);
+  protected readonly deviceTypeStore = inject(DeviceTypeStore);
 
-  @Output() showWorkingdays = new EventEmitter();
-  @Output() showSickDays = new EventEmitter();
-
+  deviceType: Signal<string> = this.deviceTypeStore.device;
+  userList: Signal<userType[]> = this.teamupStore.users;
+  selectedUsers: Signal<userType[]> = this.teamupStore.getSearchedUsers;
+  searchString: Signal<string> = this.teamupStore.userSearchString;
   showLeftMenu = false;
-  showRightMenu = false;
 
   toggleMenuLeft() {
-    this.showRightMenu = false;
     this.showLeftMenu = !this.showLeftMenu;
   }
 
-  toggleMenuRight() {
+  close() {
     this.showLeftMenu = false;
-    this.showRightMenu = !this.showRightMenu;
   }
 
-  closeMenu(type?: number) {
-    if (type === 1) {
-      // emit event for "arbejdsdage / Working days"
-      this.showWorkingdays.emit();
-    }
-    if (type === 2) {
-      // emit event for "fridage / Sick days"
-      this.showSickDays.emit();
-    }
-
-    this.showRightMenu = false;
-    this.showLeftMenu = false;
+  searchUser(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const searchValue = inputElement.value;
+    this.teamupStore.setSearchUserString(searchValue);
   }
 }

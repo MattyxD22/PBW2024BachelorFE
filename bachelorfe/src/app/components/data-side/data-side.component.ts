@@ -22,6 +22,7 @@ import { map } from 'rxjs/operators';
 import { CalendarModule } from 'primeng/calendar';
 import { FormsModule } from '@angular/forms';
 import { clickupTaskType } from '../../types/clickup-task.type';
+import { subcalendarType } from '../../types/teamup-subcalendar.type';
 
 @Component({
   selector: 'app-data-side',
@@ -54,19 +55,11 @@ export class DataSideComponent implements AfterViewInit {
   ngAfterViewInit(): void {}
   constructor() {}
 
-  visArbejdstimer() {
-    this.globalStore.setShowNonWorkingDays(false);
-  }
-
-  visFridage() {
-    this.globalStore.setShowNonWorkingDays(true);
-  }
-
   parseData() {
     const startDate = this.rangeDates[0].toLocaleDateString(); // Local date string
     const endDate = this.rangeDates[1].toLocaleDateString(); // Local date string
 
-    const subCalendars = this.teamupStore.getSubcalendars();
+    const subCalendars = this.teamupStore.subcalendars();
 
     console.log('calenders: ', subCalendars);
 
@@ -78,7 +71,6 @@ export class DataSideComponent implements AfterViewInit {
       return;
     }
 
-    console.log('parsing', startDate, endDate);
     const userObservables = selectedUsers.map((user: userType) => {
       const userEmail = user.email;
 
@@ -99,7 +91,7 @@ export class DataSideComponent implements AfterViewInit {
 
             // Match the subCalendarId to the corresponding subCalendar and get the name
             const matchedCalendar = subCalendars.find(
-              (calendar) => calendar.id === event.subcalenderId
+              (calendar: subcalendarType) => calendar.id === event.subcalenderId
             );
             const subCalendarName = matchedCalendar
               ? matchedCalendar.name
@@ -114,11 +106,19 @@ export class DataSideComponent implements AfterViewInit {
             };
           });
 
+          const filteredTasks = userTasks.filter((task: any) => {
+            const taskCreatedDate = new Date(
+              task.formattedDate
+            ).toLocaleDateString();
+            // Compare task creation date with the range
+            return taskCreatedDate >= startDate && taskCreatedDate <= endDate;
+          });
+
           return {
             userEmail,
             userName: user.name,
             userEvents: formattedUserEvents,
-            userTasks,
+            userTasks: filteredTasks,
           };
         })
       );
