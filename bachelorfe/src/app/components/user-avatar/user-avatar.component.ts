@@ -1,5 +1,5 @@
 import { NgStyle } from '@angular/common';
-import { AfterViewInit, Component, Input, OnInit, Signal } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-user-avatar',
@@ -8,13 +8,9 @@ import { AfterViewInit, Component, Input, OnInit, Signal } from '@angular/core';
   templateUrl: './user-avatar.component.html',
   styleUrl: './user-avatar.component.scss',
 })
-export class UserAvatarComponent implements AfterViewInit {
+export class UserAvatarComponent {
   @Input() userName: string = '';
   @Input() userColor!: string;
-
-  ngAfterViewInit() {
-    console.log(this.userName, this.userColor);
-  }
 
   getInitials(name: string) {
     const nameParts = name.trim().split(' ');

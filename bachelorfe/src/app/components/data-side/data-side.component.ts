@@ -3,12 +3,9 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  Input,
-  Output,
   Signal,
   ViewEncapsulation,
   inject,
-  EventEmitter,
 } from '@angular/core';
 import { FullCalendarComponent } from '../full-calendar/full-calendar.component';
 import { GlobalStore } from '../../stores/global.store';
@@ -16,13 +13,12 @@ import { ButtonModule } from 'primeng/button';
 import { TeamupStore } from '../../stores/teamup.store';
 import { ClickupStore } from '../../stores/clickup.store';
 import { userType } from '../../types/user.type';
-import { ParsedData } from '../../types/parsedData.type';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CalendarModule } from 'primeng/calendar';
 import { FormsModule } from '@angular/forms';
-import { clickupTaskType } from '../../types/clickup-task.type';
 import { subcalendarType } from '../../types/teamup-subcalendar.type';
+import { DeviceTypeStore } from '../../stores/deviceTypes.store';
 
 @Component({
   selector: 'app-data-side',
@@ -43,14 +39,12 @@ export class DataSideComponent implements AfterViewInit {
   protected readonly globalStore = inject(GlobalStore);
   protected readonly clickupStore = inject(ClickupStore);
   protected readonly teamupStore = inject(TeamupStore);
+  protected readonly deviceTypeStore = inject(DeviceTypeStore);
 
   rangeDates: Date[] = [new Date(), new Date()];
 
-  //@ViewChild(FullCalendarComponent) fullCalendarComponent!: FullCalendarComponent;
-  @Input() shouldRender: boolean = true;
-  @Input() currentDevice!: Signal<string>;
-  @Input() selectedUsers!: Signal<userType>;
-  @Input() userList!: Signal<userType[]>;
+  currentDevice: Signal<string> = this.deviceTypeStore.device;
+  selectedUsers: Signal<userType[]> = this.clickupStore.activeMembers;
 
   ngAfterViewInit(): void {}
   constructor() {}
@@ -61,17 +55,12 @@ export class DataSideComponent implements AfterViewInit {
 
     const subCalendars = this.teamupStore.subcalendars();
 
-    console.log('calenders: ', subCalendars);
-
-    let selectedUsers = this.clickupStore.activeMembers();
-    let tasks: ParsedData[] = [];
-
-    if (selectedUsers.length === 0) {
-      console.log('no user selected, returning');
+    if (this.selectedUsers().length === 0) {
+      alert('please select at least one employee');
       return;
     }
 
-    const userObservables = selectedUsers.map((user: userType) => {
+    const userObservables = this.selectedUsers().map((user: userType) => {
       const userEmail = user.email;
 
       return forkJoin({

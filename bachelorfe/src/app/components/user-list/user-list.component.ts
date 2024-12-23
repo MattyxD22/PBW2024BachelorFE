@@ -1,11 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
   EventEmitter,
   inject,
-  Input,
-  OnInit,
   Output,
   Signal,
 } from '@angular/core';
@@ -23,20 +20,16 @@ import { userType } from '../../types/user.type';
   imports: [CommonModule, UserAvatarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent {
   protected readonly teamupStore = inject(TeamupStore);
   protected readonly clickupStore = inject(ClickupStore);
   protected readonly globalStore = inject(GlobalStore);
 
-  @Input() userList!: Signal<userType[]>;
-  @Input() selectedUsers!: Signal<userType[]>;
-  @Input() searchString!: Signal<string>;
+  userList: Signal<userType[]> = this.teamupStore.users;
+  searchString: Signal<string> = this.teamupStore.userSearchString;
+  selectedUsers: Signal<userType[]> = this.clickupStore.activeMembers;
 
   @Output() close = new EventEmitter();
-
-  ngOnInit(): void {
-    console.log(this.selectedUsers());
-  }
 
   closeSidebar() {
     this.close.emit();
