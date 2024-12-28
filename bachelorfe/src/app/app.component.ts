@@ -57,6 +57,16 @@ export class AppComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
+    this.teamupService.teamupAuthenticate().subscribe({
+      next: () => {
+        this.teamupStore.setUsers(); // Call setUsers after successful authentication
+        this.teamupStore.setSubCalender();
+        this.clickupStore.setMembers();
+      },
+      error: (error) => {
+        console.error('Authentication failed:', error);
+      },
+    });
     const width =
       document.documentElement.clientWidth || this.fallBackDeviceType();
     this.deviceTypeStore.updateDeviceType(width);
@@ -68,18 +78,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.teamupService.teamupAuthenticate().subscribe({
-      next: () => {
-        this.teamupStore.setUsers(); // Call setUsers after successful authentication
-        this.teamupStore.setSubCalender();
-        this.clickupStore.setMembers();
-      },
-      error: (error) => {
-        console.error('Authentication failed:', error);
-      },
-    });
-  }
+  ngOnInit(): void {}
 
   fallBackDeviceType(): number {
     if (typeof navigator !== 'undefined') {

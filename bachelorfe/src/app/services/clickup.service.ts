@@ -2,19 +2,18 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ClickupService {
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
-
-  clickupFetchMembers() {  
+  clickupFetchMembers() {
     return this.http.get<any[]>(`http://localhost:3000/api/clickup/members`);
   }
 
-  clickupFetchTasks(email:string){
-    return this.http.get<any[]>(`http://localhost:3000/api/clickup/tasks/${email}`);
+  clickupFetchTasks(email: string) {
+    return this.http.get<any[]>(
+      `http://localhost:3000/api/clickup/tasks/${email}`
+    );
   }
-
-
 }

@@ -1,4 +1,4 @@
-<div class="p-4 border-2 border-green-500 flex flex-row">
+<div class="p-4 border-2 flex flex-row">
   <div class="flex flex-row w-full relative">
     <div class="user-item flex flex-row p-6 w-full">
       <!-- Use @if to check if selectedUsers() has at least one user -->
@@ -35,7 +35,7 @@
 
     <div class="mx-auto flex justify-center content-center">
       <p-button
-        class="my-auto p-primary"
+        class="my-auto p-primary toggleUserMenuBtn"
         pRipple
         pButton
         icon="pi pi-bars"
@@ -46,7 +46,7 @@
 
   @if(showLeftMenu){
   <div
-    class="absolute border-2 border-l-0 border-black-500 w-[75%] bg-white left-0 top-0 h-full z-50"
+    class="absolute border-2 border-l-0 border-black-500 w-[75%] bg-white left-0 top-0 h-full z-50 header_userSide"
   >
     <div class="h-full flex flex-col">
       <div
