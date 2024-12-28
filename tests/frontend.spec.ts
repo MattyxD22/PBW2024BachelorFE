@@ -192,7 +192,6 @@ test('count calendar rows when week is selected', async ({ page }) => {
 });
 
 test('click user, and view events', async ({ page }) => {
-  // Navigate to the app
   await page.goto('http://localhost:4200');
   await page.waitForTimeout(3000);
 
@@ -205,11 +204,9 @@ test('click user, and view events', async ({ page }) => {
 
   if (eventCount > 0) {
     console.log(`Found ${eventCount} event(s) in the calendar`);
-    // Assert that at least one event exists
     expect(eventCount).toBeGreaterThan(0);
   } else {
     console.log('No events found in the calendar');
-    // Assert that no events exist
     expect(eventCount).toBe(0);
   }
 });
@@ -222,7 +219,6 @@ test('test with mobile resolution', async ({ browser }) => {
     ...iphone, // Apply the iPhone 13 settings
   });
 
-  // Use a new page within this context
   const page = await context.newPage();
   await page.goto('http://localhost:4200');
   await page.waitForTimeout(3000);
